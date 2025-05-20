@@ -16,5 +16,15 @@ public class WebController {
 	public String login(Model model) {
 	model.addAttribute("message", "signup");
 	return "signup";
-	}
+    }
+    @GetMapping("/main")
+	public String main(Model model) {
+	model.addAttribute("message", "signup");
+	return "main";
+    }
+    @GetMapping("/card")
+	public String card(Model model) {
+	model.addAttribute("message", "signup");
+	return "card";
+    }
 }
