@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org">
+	<head>
+		<meta charset="UTF-8">
+		<style>
+img {
+  display: block;
+  margin: auto;
+  width: 50%;
+}
+body {
+	background-image: url(/img/bg.jpg);
+}
+.tf{
+	gap: 60px;
+	width: 320px;
+	height: 50px;
+	align-items: center;
+	display: flex;
+	top: 10;
+	bottom: 0;
+	left: 50;
+	right: 50;
+	margin: auto;
+}
+.pss{
+	gap: 65px;
+	width: 320px;
+	height: 50px;
+	align-items: center;
+	display: flex;
+	top: 10;
+	bottom: 50;
+	left: 50;
+	right: 50;
+	margin: auto;
+}
+button{
+	cursor:pointer;
+	padding: 14px 100px;
+	margin: 8px 0;
+	background: green;
+	border: none;
+}
+b {
+  font-size: 22px;
+}
+			</style>
+	</head>
+	
+	<body>
+		<a><img src="/img/yugioh.png" alt="yyy" style="align-item:center;"></a>
+		<h1 style="text-align:center; color:red;">Sign up!!!</h1>
+		<div class = "tf">
+			<b style="color: red;">Username</b>
+			<input type="username" placeholder="username" id="name"></input>
+		</div>
+		<div class = "pss">
+			<b style="color: red;">Password</b>
+			<input type="password" placeholder="********" id="password"></input>
+			</div>
+		<div class = "pss">
+			<b style="color: red;">Password Again</b>
+			<input type="password" placeholder="********" id="password"></input>
+			</div>
+		<div type = "button" align="center">
+		<button>Sign up!</button>
+		</div>
+		<div class="tf">
+		<p>Have an account? <a href="/">Log in!</a></p>
+		</div>
+		
+	</body>
+</html>
