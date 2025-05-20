@@ -25,6 +25,8 @@ public class User {
 		this.password = password;
 		this.name = name;
 	}
+	
+	public User() {}
 
 	public int getUser_id() {
 		return user_id;
