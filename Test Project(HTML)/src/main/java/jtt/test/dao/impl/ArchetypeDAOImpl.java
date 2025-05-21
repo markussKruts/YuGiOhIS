@@ -13,7 +13,7 @@ import jtt.test.dto.Archetype;
 import jtt.test.repositories.ArchetypeRepository;
 
 @Service
-public class ArchetypeImpl implements ArchetypeDAO {
+public class ArchetypeDAOImpl implements ArchetypeDAO {
 	@Autowired
 	ArchetypeRepository archetypeRepository;
 

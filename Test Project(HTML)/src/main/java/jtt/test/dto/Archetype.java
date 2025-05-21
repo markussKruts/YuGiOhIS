@@ -1,9 +1,13 @@
 package jtt.test.dto;
 
+import java.util.List;
+
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity
@@ -14,15 +18,10 @@ public class Archetype {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int archetype_id;
 	private String name;
-	
-	
-	public Archetype() {}
-	
-
 	public Archetype(String name) {
 		this.name = name;
-		
 	}
+	public Archetype() {}
 
 	public int getArchetype_id() {
 		return archetype_id;

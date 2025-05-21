@@ -1,9 +1,13 @@
 package jtt.test.dto;
 
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
@@ -12,35 +16,48 @@ import jakarta.persistence.Table;
 public class Card {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "card_id")
 	private int card_id;
 	private String name;
 	private String description;
 	private int attack;
 	private int defense;
 	private int level;
-	private Attribute attribute_id;
-	private Race race_id;
-	private Archetype archetype_id;
-	private FrameType frame_type_id;
-	private Card_Type card_type_id;
-	private Card_image image_id;
+	@ManyToOne(cascade = CascadeType.ALL)
+	@JoinColumn(name = "attribute")
+	private Attribute attribute;
+	@ManyToOne(cascade = CascadeType.ALL)
+	@JoinColumn(name = "race")
+	private Race race;
+	@ManyToOne(cascade = CascadeType.ALL)
+	@JoinColumn(name = "archetype")
+	private Archetype archetype;
+	@ManyToOne(cascade = CascadeType.ALL)
+	@JoinColumn(name = "frame_type")
+	private FrameType frame_type;
+	@ManyToOne(cascade = CascadeType.ALL)
+	@JoinColumn(name = "card_type")
+	private Card_Type card_type;
+	@ManyToOne(cascade = CascadeType.ALL)
+	@JoinColumn(name = "image")
+	private Card_image image;
 
 
 	public Card() {}
 	
 	
-public Card(String name, String description, int attack, int defense, int level, Attribute attribute_id, Race race_id, Archetype archetype_id, FrameType frame_type_id, Card_Type card_type_id, Card_image image_id ) {
+public Card(String name, String description, int attack, int defense, int level, Attribute attribute, Race race, Archetype archetype, FrameType frame_type, Card_Type card_type, Card_image image ) {
 	this.name = name;
 	this.description = description;
 	this.attack = attack;
 	this.defense = defense;
 	this.level = level;
-	this.archetype_id = archetype_id;
-	this.attribute_id = attribute_id;
-	this.card_type_id = card_type_id;
-	this.frame_type_id = frame_type_id;
-	this.image_id = image_id;
-	this.race_id = race_id;
+	this.archetype = archetype;
+	this.attribute = attribute;
+	this.card_type = card_type;
+	this.frame_type = frame_type;
+	this.image = image;
+	this.race = race;
 
 }
 
@@ -112,62 +129,62 @@ public void setLevel(int level) {
 
 
 public Attribute getAttribute_id() {
-	return attribute_id;
+	return attribute;
 }
 
 
-public void setAttribute_id(Attribute attribute_id) {
-	this.attribute_id = attribute_id;
+public void setAttribute_id(Attribute attribute) {
+	this.attribute = attribute;
 }
 
 
 public Race getRace_id() {
-	return race_id;
+	return race;
 }
 
 
-public void setRace_id(Race race_id) {
-	this.race_id = race_id;
+public void setRace_id(Race race) {
+	this.race = race;
 }
 
 
 public Archetype getArchetype_id() {
-	return archetype_id;
+	return archetype;
 }
 
 
-public void setArchetype_id(Archetype archetype_id) {
-	this.archetype_id = archetype_id;
+public void setArchetype_id(Archetype archetype) {
+	this.archetype = archetype;
 }
 
 
 public FrameType getFrame_type_id() {
-	return frame_type_id;
+	return frame_type;
 }
 
 
-public void setFrame_type_id(FrameType frame_type_id) {
-	this.frame_type_id = frame_type_id;
+public void setFrame_type_id(FrameType frame_type) {
+	this.frame_type = frame_type;
 }
 
 
 public Card_Type getCard_type_id() {
-	return card_type_id;
+	return card_type;
 }
 
 
-public void setCard_type_id(Card_Type card_type_id) {
-	this.card_type_id = card_type_id;
+public void setCard_type_id(Card_Type card_type) {
+	this.card_type = card_type;
 }
 
 
 public Card_image getImage_id() {
-	return image_id;
+	return image;
 }
 
 
-public void setImage_id(Card_image image_id) {
-	this.image_id = image_id;
+public void setImage_id(Card_image image) {
+	this.image = image;
 }
 
 

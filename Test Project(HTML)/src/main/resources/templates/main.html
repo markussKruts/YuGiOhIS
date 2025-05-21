@@ -30,6 +30,13 @@ h1 {
   text-align:center;
   color:red;
 }
+.form-row {
+            display: grid;
+            grid-template-columns: 150px 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+            align-items: center;
+}
 button{
 	cursor:pointer;
 	padding: 14px 100px;
@@ -44,12 +51,14 @@ b {
 	</head>
 	
 	<body>
+		<div = class="form-row">
 		<a><img src="/img/yugioh.png" alt="yyy" style="align-item:center;"></a>
 		<h1>Card, Deck And Set Builder!!!</h1>
 		<div class="tf">
 		<a href="/card" type="button"><button>Card Options</button></a>
 		<a href="/main" type="button"><button>Deck Options</button></a>
 		<a href="/main" type="button"><button>Set Options</button></a>
+		</div>
 		</div>
 		
 	</body>

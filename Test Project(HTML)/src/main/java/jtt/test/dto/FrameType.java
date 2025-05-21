@@ -1,9 +1,12 @@
 package jtt.test.dto;
 
+import java.util.List;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity
@@ -16,7 +19,12 @@ public class FrameType {
 @GeneratedValue(strategy = GenerationType.IDENTITY)	
 private int frame_type_id;
 private	String name;
-	
+@OneToMany(mappedBy = "frame_type")
+private List<Card> cards;
+
+	public FrameType() {
+		// TODO Auto-generated constructor stub
+	}
 	
 	
 	public FrameType(String name) {

@@ -1,6 +1,8 @@
 package jtt.test.dto;
 
+import java.util.List;
 
+import jakarta.persistence.OneToMany;
 
 public class Card_set {
 	private int card_sets;
@@ -8,12 +10,12 @@ private Card card_id;
 private Set set_id;
 private Rarities rarity_id;
 
+
 public Card_set(Card card_id,Set set_id,Rarities rarity_id) {
 	this.card_id = card_id;
 	this.rarity_id = rarity_id;
 	this.set_id = set_id;
 }
-
 public int getCard_sets() {
 	return card_sets;
 }
