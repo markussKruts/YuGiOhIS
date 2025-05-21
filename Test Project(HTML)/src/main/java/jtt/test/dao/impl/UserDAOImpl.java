@@ -6,6 +6,7 @@ import java.util.Objects;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import jakarta.persistence.TypedQuery;
 import jtt.test.dao.UserDAO;
 import jtt.test.dto.Race;
 import jtt.test.dto.User;
@@ -58,8 +59,7 @@ public class UserDAOImpl implements UserDAO{
 
 	@Override
 	public User getByUsername(String user) {
-		// TODO Auto-generated method stub
-		return null;
+		return userRepository.findByUsername(user);
 	}
 
 }

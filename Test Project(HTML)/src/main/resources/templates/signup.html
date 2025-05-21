@@ -1,81 +1,117 @@
 <!DOCTYPE html>
 <html xmlns:th="https://www.thymeleaf.org">
-	<head>
-		<meta charset="UTF-8">
-		<style>
-img {
-  display: block;
-  margin: auto;
-  width: 50%;
-}
-body {
-	background-image: url(/img/bg.jpg);
-}
-.tf{
-	gap: 80px;
-	width: 750px;
-	height: 100px;
-	align-items: center;
-	display: flex;
-	top: 10;
-	bottom: 0;
-	left: 50;
-	right: 50;
-	margin: auto;
-}
-.btn{
-	gap: 105px;
-	width: 655px;
-	height: 50px;
-	align-items: center;
-	display: flex;
-	top: 10;
-	bottom: 50;
-	left: 50;
-	right: 50;
-	margin: auto;
-}
-button{
-	cursor:pointer;
-	padding: 14px 100px;
-	margin: 8px 0;
-	background: green;
-	border: none;
-}
-b {
-  font-size: 26px;
-}
-input {
-font-size:15px;
-}
+<head>
+    <meta charset="UTF-8">
+    <style>
+        img {
+            display: block;
+            margin: auto;
+            width: 50%;
+        }
 
-			</style>
-	</head>
-	
-	<body>
-		<a><img src="/img/yugioh.png" alt="yyy" style="align-item:center;"></a>
-		<h1 style="text-align:center; color:red;">Sign up!!!</h1>
-		 <form th:action="@{/signup}" th:object="${user}" method="post">
-		<div class = "tf">
-			<b>Username</b>
-			<input type="username" placeholder="username" id="name"></input>
-			<b>Name<b style="color: rgba(0, 0, 0, 0.5);">___</b></b>
-			<input type="name" placeholder="name" id="name"></input>
-		</div>
-		<div class = "tf">
-			<b>Password</b>
-			<input type="password" placeholder="********" id="password"></input>
-			<b>Password Again</b>
-			<input type="password" placeholder="********" id="password"></input>
-			</div>
-		<div type = "button" align="center">
-			<br>
-			<br>
-		</div>
-		<div class="btn">
-		<button>Sign up!</button>
-		<b>Have an account? <a href="/">Log in!</a></b>
-		</div>
-		</form>
-	</body>
+        body {
+            background-image: url(/img/bg.jpg);
+            font-family: Arial, sans-serif;
+        }
+
+        form {
+            width: 700px;
+            margin: auto;
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        h1 {
+            text-align: center;
+            color: red;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 150px 1fr 150px 1fr;
+            gap: 15px 20px;
+            margin-bottom: 15px;
+            align-items: center;
+        }
+
+        .form-row.single {
+            grid-template-columns: 150px 1fr;
+        }
+
+        b {
+            font-size: 18px;
+            text-align: right;
+        }
+
+        input {
+            font-size: 15px;
+            padding: 8px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .btn {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        button {
+            cursor: pointer;
+            padding: 14px 50px;
+            background: green;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .login-link {
+            display: block;
+            margin-top: 10px;
+            font-size: 16px;
+        }
+    </style>
+    <script>
+        function showError(message) {
+            alert(message);
+        }
+    </script>
+</head>
+<body>
+    <a><img src="/img/yugioh.png" alt="yyy"></a>
+    <h1>Sign up!!!</h1>
+
+    <form action="/submit" method="post">
+        <div class="form-row">
+            <b>Username</b>
+            <input type="text" placeholder="username" name="username" required>
+            <b>Name</b>
+            <input type="text" placeholder="name" name="name" required>
+        </div>
+
+        <div class="form-row single">
+            <b>Email</b>
+            <input type="email" placeholder="email" name="email" required>
+        </div>
+
+        <div class="form-row">
+            <b>Password</b>
+            <input type="password" placeholder="********" name="password" required>
+            <b>Confirm</b>
+            <input type="password" placeholder="********" required>
+        </div>
+
+        <div class="btn">
+            <button type="submit">Sign up!</button>
+            <span class="login-link"><b>Have an account? <a href="/">Log in!</a></b></span>
+        </div>
+    </form>
+
+    <div th:if="${error != null}">
+        <script th:inline="javascript">
+            showError([[${error}]]);
+        </script>
+    </div>
+</body>
 </html>
