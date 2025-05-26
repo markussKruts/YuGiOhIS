@@ -18,7 +18,9 @@ public class Card_Type {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int card_type_id;
 	private String name;
-
+	@OneToMany(mappedBy = "card_type")
+	private List<Cards> cards;
+	
 	
 	public Card_Type() {}
 	

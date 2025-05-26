@@ -2,6 +2,7 @@ package jtt.test.dto;
 
 import java.util.List;
 
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -20,6 +21,9 @@ public class Card_image {
 	@Column(name ="image_id")
 	private int image_id;
 	private String image_url;
+	@OneToMany(mappedBy = "image")
+	private List<Cards> cards;
+	
 public Card_image() {}
 
 

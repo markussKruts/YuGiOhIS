@@ -2,6 +2,7 @@ package jtt.test.dto;
 
 import java.util.List;
 
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -18,6 +19,9 @@ public class Archetype {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int archetype_id;
 	private String name;
+	@OneToMany(mappedBy = "archetype")
+	private List<Cards> cards;
+	
 	public Archetype(String name) {
 		this.name = name;
 	}

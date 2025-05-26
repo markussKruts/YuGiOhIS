@@ -17,6 +17,8 @@ public class Attribute {
 @GeneratedValue(strategy = GenerationType.IDENTITY)
 private int attribute_id;
 private String name;
+@OneToMany(mappedBy = "attribute")
+private List<Cards> cards;
 
 	public Attribute() {}
 

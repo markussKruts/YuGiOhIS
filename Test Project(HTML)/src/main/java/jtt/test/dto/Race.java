@@ -1,9 +1,12 @@
 package jtt.test.dto;
 
+import java.util.List;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity
@@ -14,7 +17,9 @@ public class Race {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int race_id;
 	private	String name;
-
+	@OneToMany(mappedBy = "race")
+	private List<Cards> cards;
+	
 	public Race() {}
 	
 	public Race(String name) {
