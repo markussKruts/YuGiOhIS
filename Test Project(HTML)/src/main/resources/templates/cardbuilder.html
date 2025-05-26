@@ -47,13 +47,30 @@
       background-color: #218838;
       transform: scale(1.05);
     }
+.form-columns {
+  display: flex;
+  gap: 50px;
+}
 
+.column {
+  flex: 1; /* Equal width for both columns */
+}
+
+/* Make button full width on smaller screens */
+@media (max-width: 700px) {
+  .form-columns {
+    flex-direction: column;
+  }
+  .submit-btn {
+    width: 100%;
+  }
+}
     b {
       font-size: 22px;
     }
 
     form {
-      max-width: 600px;
+      max-width: 800px;
       margin: 30px auto;
       padding: 50px;
       background: rgba(255, 255, 255, 0.9);
@@ -82,6 +99,35 @@
       margin-top: 20px;
       background-color: #007bff;
     }
+#drop-area {
+  border: 2px dashed #ccc;
+  border-radius: 8px;
+  padding: 10px;
+  text-align: center;
+  cursor: pointer;
+  min-height: 300px;      /* Increased height for bigger image */
+  width: 350px;           /* Fixed width for consistent sizing */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  color: #666;
+  transition: border-color 0.3s ease;
+  margin: 0 auto;         /* Center the drop area horizontally */
+}
+
+#drop-area.dragover {
+  border-color: #28a745;
+  color: #28a745;
+}
+
+#preview {
+  max-width: 100%;       /* fills the container width */
+  max-height: 280px;     /* limit height to fit inside drop area */
+  display: block;
+  margin-top: 10px;
+  border-radius: 3px;
+  object-fit: contain;    /* keeps aspect ratio */
+}
 
     .submit-btn:hover {
       background-color: #0056b3;
@@ -89,32 +135,159 @@
   </style>
 </head>
 <body>
-
+<script>
+	function checkOption(obj) {
+    var input = document.getElementsByName("atk");
+    var input1 = document.getElementsByName("def");
+    var input2 = document.getElementsByName("lvl");
+    for(var i=0; i < input.length; i++) {
+     input[i].disabled = !(obj.value != "Spell Card") || !(obj.value != "Trap Card")
+     input1[i].disabled = !(obj.value != "Spell Card") || !(obj.value != "Trap Card")
+     input2[i].disabled = !(obj.value != "Spell Card") || !(obj.value != "Trap Card")
+    }
+}
+</script>
+	
   <a><img src="/img/yugioh.png" alt="Yu-Gi-Oh! Logo"></a>
  <h1>Card Builder</h1>
-  <form action="/submit-card" method="post">
-    <label for="name">Card Name:</label>
-    <input type="text" id="name" name="name" required>
+<form action="/submit-card" method="post" enctype="multipart/form-data">
+  <div class="form-columns" style="display:flex; gap: 40px;">
+    <div class="column" style="flex:1;">
+      <!-- First column inputs -->
+      <label for="name">Card Name:</label>
+      <input type="text" id="name" name="name" required>
 
-    <label for="type">Card Type:</label>
-    <select id="type" name="type">
-      <option value="Monster">Monster</option>
-      <option value="Spell">Spell</option>
-      <option value="Trap">Trap</option>
-    </select>
+      <label for="type">Card Type:</label>
+      <select id="type" name="type" onChange="checkOption(this)">
+        <option value="Effect Monster">Effect Monster</option>
+        <option value="Flip Effect Monster">Flip Effect Monster</option>
+        <option value="Flip Tuner Effect Monster">Flip Tuner Effect Monster</option>
+        <option value="Gemini Monster">Gemini Monster</option>
+        <option value="Normal Monster">Normal Monster</option>
+        <option value="Normal Tuner Monster">Normal Tuner Monster</option>
+        <option value="Pendulum Effect Monster">Pendulum Effect Monster</option>
+        <option value="Pendulum Effect Ritual Monster">Pendulum Effect Ritual Monster</option>
+        <option value="Pendulum Flip Effect Monster">Pendulum Flip Effect Monster</option>
+        <option value="Pendulum Normal Monster">Pendulum Normal Monster</option>
+        <option value="Pendulum Tuner Effect Monster">Pendulum Tuner Effect Monster</option>
+        <option value="Ritual Effect Monster">Ritual Effect Monster</option>
+        <option value="Ritual Monster">Ritual Monster</option>
+        <option value="Spell Card">Spell Card</option>
+        <option value="Spirit Monster">Spirit Monster</option>
+        <option value="Toon Monster">Toon Monster</option>
+        <option value="Trap Card">Trap Card</option>
+        <option value="Tuner Monster">Tuner Monster</option>
+        <option value="Union Effect Monster">Union Effect Monster</option>
+      </select>
 
-    <label for="desc">Description:</label>
-    <textarea id="desc" name="desc" rows="4" required></textarea>
+      <label for="desc">Description:</label>
+      <textarea id="desc" name="desc" rows="4" required></textarea>
 
-    <label for="atk">ATK (Monsters only):</label>
-    <input type="number" id="atk" name="atk">
+      <label for="arch">Archetype:</label>
+      <input type="text" id="arch" name="arch">
 
-    <label for="def">DEF (Monsters only):</label>
-    <input type="number" id="def" name="def">
+      <label for="attribute">Card Type:</label>
+      <select id="attribute" name="attribute">
+        <option value="DARK">DARK</option>
+        <option value="DIVINE">DIVINE</option>
+        <option value="EARTH">EARTH</option>
+        <option value="FIRE">FIRE</option>
+        <option value="LIGHT">LIGHT</option>
+        <option value="WATER">WATER</option>
+        <option value="WIND">WIND</option>
+      </select>
+    </div>
 
-    <button type="submit" class="submit-btn">Create Card</button>
-  </form>
+    <div class="column" style="flex:1;">
+      <!-- Second column inputs -->
+      <label for="atk">ATK (Monsters only):</label>
+      <input type="number" id="atk" name="atk">
 
+      <label for="def">DEF (Monsters only):</label>
+      <input type="number" id="def" name="def">
+
+      <label for="lvl">LVL (Monsters only):</label>
+      <input type="number" id="lvl" name="lvl">
+
+      <label for="race">Race: (Spell/Trap types)</label>
+      <input type="number" id="race" name="race">
+
+      <label for="frametype">Frametype:</label>
+      <input type="text" id="frametype" name="frametype">
+
+      <label for="price">Price:</label>
+      <input type="number" id="price" name="price">
+
+      <button type="submit" class="submit-btn">Create Card</button>
+    </div>
+
+    <div class="column" style="flex:1;">
+      <!-- Third column: Image drag & drop -->
+      <label for="card-image">Card Image:</label>
+      <div id="drop-area" style="border: 2px dashed #ccc; border-radius: 8px; padding: 20px; text-align: center; cursor: pointer; min-height: 180px; display: flex; flex-direction: column; justify-content: center; color: #666; transition: border-color 0.3s ease;">
+        <p id="drop-text">Drag & Drop Image Here<br>or Click to Select</p>
+        <input type="file" id="card-image" name="card-image" accept="image/*" style="display:none;">
+        <img id="preview" src="" alt="Image Preview" style="display:none; max-width:100%; margin-top:10px; border-radius: 3px;">
+      </div>
+    </div>
+  </div>
+</form>
+
+<script>
+  const dropArea = document.getElementById('drop-area');
+  const fileInput = document.getElementById('card-image');
+  const preview = document.getElementById('preview');
+  const dropText = document.getElementById('drop-text');
+
+  // Open file selector on click
+  dropArea.addEventListener('click', () => fileInput.click());
+
+  // Highlight drop area when dragging files over it
+  dropArea.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    dropArea.style.borderColor = '#28a745';
+    dropArea.style.color = '#28a745';
+  });
+
+  dropArea.addEventListener('dragleave', (e) => {
+    e.preventDefault();
+    dropArea.style.borderColor = '#ccc';
+    dropArea.style.color = '#666';
+  });
+
+  dropArea.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropArea.style.borderColor = '#ccc';
+    dropArea.style.color = '#666';
+
+    if(e.dataTransfer.files.length) {
+      fileInput.files = e.dataTransfer.files;
+      showPreview(fileInput.files[0]);
+    }
+  });
+
+  // Preview image on file select
+  fileInput.addEventListener('change', () => {
+    if(fileInput.files.length) {
+      showPreview(fileInput.files[0]);
+    }
+  });
+
+  function showPreview(file) {
+    if(!file.type.startsWith('image/')) {
+      alert('Please select a valid image file.');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      preview.src = e.target.result;
+      preview.style.display = 'block';
+      dropText.style.display = 'none';
+    };
+    reader.readAsDataURL(file);
+  }
+</script>
   <div class="tf">
     <a href="/card"><button>Back to Menu</button></a>
   </div>
