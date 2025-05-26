@@ -30,19 +30,18 @@ h1 {
   text-align:center;
   color:red;
 }
-.form-row {
-            display: grid;
-            grid-template-columns: 150px 1fr;
-            gap: 10px;
-            margin-bottom: 20px;
-            align-items: center;
-}
 button{
 	cursor:pointer;
 	padding: 14px 100px;
-	margin: 20px 0;
-	background: green;
-	border: none;
+      background-color: #28a745;
+      border: none;
+      border-radius: 8px;
+      font-size: 1.2rem;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+}
+button:hover {
+      background-color: #218838;
+      transform: scale(1.05);
 }
 b {
   font-size: 22px;
@@ -51,7 +50,6 @@ b {
 	</head>
 	
 	<body>
-		<div = class="form-row">
 		<a><img src="/img/yugioh.png" alt="yyy" style="align-item:center;"></a>
 		<h1>Card, Deck And Set Builder!!!</h1>
 		<div class="tf">
@@ -59,6 +57,8 @@ b {
 		<a href="/main" type="button"><button>Deck Options</button></a>
 		<a href="/main" type="button"><button>Set Options</button></a>
 		</div>
+		<div class="tf">
+		<a href="/" type="button"><button>Log out</button></a>
 		</div>
 		
 	</body>

@@ -13,12 +13,10 @@ import jakarta.persistence.Table;
 @Table(name = "attributes")
 
 public class Attribute {
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
+@Id
+@GeneratedValue(strategy = GenerationType.IDENTITY)
 private int attribute_id;
 private String name;
-@OneToMany(mappedBy = "attribute")
-private List<Card> cards;
 
 	public Attribute() {}
 

@@ -12,7 +12,7 @@ import jakarta.persistence.Table;
 public class Set {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private int id_set;
+	private int set_id;
 private String name;
 private String code;
 private Date release_date;
@@ -51,11 +51,11 @@ public void setRelease_date(Date release_date) {
 }
 
 public int getId_set() {
-	return id_set;
+	return set_id;
 }
 
-public void setId_set(int id_set) {
-	this.id_set = id_set;
+public void setId_set(int set_id) {
+	this.set_id = set_id;
 }
 }
 

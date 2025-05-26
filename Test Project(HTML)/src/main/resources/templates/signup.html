@@ -17,7 +17,7 @@
         form {
             width: 700px;
             margin: auto;
-            background-color: rgba(255, 255, 255, 0.9);
+            background-color: rgba(255, 255, 255, 0.7);
             padding: 20px;
             border-radius: 10px;
         }
@@ -60,7 +60,6 @@
             cursor: pointer;
             padding: 14px 50px;
             background: green;
-            color: white;
             border: none;
             border-radius: 5px;
             font-size: 16px;
@@ -71,6 +70,20 @@
             margin-top: 10px;
             font-size: 16px;
         }
+        
+button{
+	cursor:pointer;
+	padding: 14px 100px;
+      background-color: #28a745;
+      border: none;
+      border-radius: 8px;
+      font-size: 1.2rem;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+}
+button:hover {
+      background-color: #218838;
+      transform: scale(1.05);
+}
     </style>
     <script>
         function showError(message) {
@@ -80,9 +93,9 @@
 </head>
 <body>
     <a><img src="/img/yugioh.png" alt="yyy"></a>
-    <h1>Sign up!!!</h1>
 
     <form action="/submit" method="post">
+		    <h1>Sign up!!!</h1>
         <div class="form-row">
             <b>Username</b>
             <input type="text" placeholder="username" name="username" required>

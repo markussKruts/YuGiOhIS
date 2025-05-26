@@ -19,8 +19,6 @@ public class FrameType {
 @GeneratedValue(strategy = GenerationType.IDENTITY)	
 private int frame_type_id;
 private	String name;
-@OneToMany(mappedBy = "frame_type")
-private List<Card> cards;
 
 	public FrameType() {
 		// TODO Auto-generated constructor stub

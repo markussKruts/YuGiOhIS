@@ -58,6 +58,11 @@ public class WebController {
 	model.addAttribute("message", "hello world");
 	return "index";
 	}
+	@GetMapping("/cardbuilder")
+	public String build(Model model) {
+	model.addAttribute("message", "hello world");
+	return "cardbuilder";
+	}
     @GetMapping("/main")
 	public String main(Model model) {
 	model.addAttribute("message", "signup");

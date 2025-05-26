@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Yu-Gi-Oh! Card Builder</title>
+  <style>
+    img {
+      display: block;
+      margin: auto;
+      width: 50%;
+    }
+
+    body {
+      background-image: url(/img/bg.jpg);
+      background-size: cover;
+      font-family: Arial, sans-serif;
+    }
+
+    .tf {
+      gap: 30px;
+      width: 850px;
+      height: 180px;
+      align-items: center;
+      display: flex;
+      justify-content: center;
+      margin: auto;
+    }
+
+    h1 {
+      font-weight: bold;
+      font-size: 55px;
+      text-align: center;
+      color: red;
+    }
+
+    button {
+      cursor: pointer;
+      padding: 14px 100px;
+      background-color: #28a745;
+      border: none;
+      border-radius: 8px;
+      font-size: 1.2rem;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+
+    button:hover {
+      background-color: #218838;
+      transform: scale(1.05);
+    }
+
+    b {
+      font-size: 22px;
+    }
+
+    form {
+      max-width: 600px;
+      margin: 30px auto;
+      padding: 50px;
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 10px;
+    }
+
+    label {
+      display: block;
+      margin: 15px 0 5px;
+      font-weight: bold;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+    }
+
+    textarea {
+      resize: vertical;
+    }
+
+    .submit-btn {
+      margin-top: 20px;
+      background-color: #007bff;
+    }
+
+    .submit-btn:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+
+  <a><img src="/img/yugioh.png" alt="Yu-Gi-Oh! Logo"></a>
+ <h1>Card Builder</h1>
+  <form action="/submit-card" method="post">
+    <label for="name">Card Name:</label>
+    <input type="text" id="name" name="name" required>
+
+    <label for="type">Card Type:</label>
+    <select id="type" name="type">
+      <option value="Monster">Monster</option>
+      <option value="Spell">Spell</option>
+      <option value="Trap">Trap</option>
+    </select>
+
+    <label for="desc">Description:</label>
+    <textarea id="desc" name="desc" rows="4" required></textarea>
+
+    <label for="atk">ATK (Monsters only):</label>
+    <input type="number" id="atk" name="atk">
+
+    <label for="def">DEF (Monsters only):</label>
+    <input type="number" id="def" name="def">
+
+    <button type="submit" class="submit-btn">Create Card</button>
+  </form>
+
+  <div class="tf">
+    <a href="/card"><button>Back to Menu</button></a>
+  </div>
+
+</body>
+</html>

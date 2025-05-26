@@ -17,7 +17,7 @@
         form {
             width: 400px;
             margin: auto;
-            background-color: rgba(255, 255, 255, 0.8);
+            background-color: rgba(255, 255, 255, 0.7);
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -55,16 +55,19 @@
             margin-top: 20px;
         }
 
-        button {
-            cursor: pointer;
-            padding: 14px 50px;
-            background: green;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
-        }
-
+button{
+	cursor:pointer;
+	padding: 14px 100px;
+      background-color: #28a745;
+      border: none;
+      border-radius: 8px;
+      font-size: 1.2rem;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+}
+button:hover {
+      background-color: #218838;
+      transform: scale(1.05);
+}
         .login-link {
             display: block;
             text-align: center;
@@ -81,9 +84,9 @@
 
 <body>
     <a><img src="/img/yugioh.png" alt="yyy"></a>
-    <h1>Log in!!!</h1>
 
     <form action="/login" method="post">
+		    <h1>Log in!!!</h1>
         <div class="form-row">
             <b>Username</b>
             <input type="text" placeholder="username" name="username" required>
