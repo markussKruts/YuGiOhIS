@@ -55,6 +55,6 @@ public class RaceDAOImpl implements RaceDAO{
 	@Override
 	public Race getByRace(String race) {
 		// TODO Auto-generated method stub
-		return null;
+		return raceRepository.findByName(race);
 	}
 }

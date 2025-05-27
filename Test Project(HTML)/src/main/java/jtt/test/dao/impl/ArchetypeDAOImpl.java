@@ -57,8 +57,7 @@ public class ArchetypeDAOImpl implements ArchetypeDAO {
 
 	@Override
 	public Archetype getByName(String name) {
-		// TODO Auto-generated method stub
-		return null;
+		return archetypeRepository.findByName(name);
 	}
 	
 	

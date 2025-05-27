@@ -158,36 +158,22 @@
       <input type="text" id="name" name="name" required>
 
       <label for="type">Card Type:</label>
-      <select id="type" name="type" onChange="checkOption(this)">
-        <option value="Effect Monster">Effect Monster</option>
-        <option value="Flip Effect Monster">Flip Effect Monster</option>
-        <option value="Flip Tuner Effect Monster">Flip Tuner Effect Monster</option>
-        <option value="Gemini Monster">Gemini Monster</option>
-        <option value="Normal Monster">Normal Monster</option>
-        <option value="Normal Tuner Monster">Normal Tuner Monster</option>
-        <option value="Pendulum Effect Monster">Pendulum Effect Monster</option>
-        <option value="Pendulum Effect Ritual Monster">Pendulum Effect Ritual Monster</option>
-        <option value="Pendulum Flip Effect Monster">Pendulum Flip Effect Monster</option>
-        <option value="Pendulum Normal Monster">Pendulum Normal Monster</option>
-        <option value="Pendulum Tuner Effect Monster">Pendulum Tuner Effect Monster</option>
-        <option value="Ritual Effect Monster">Ritual Effect Monster</option>
-        <option value="Ritual Monster">Ritual Monster</option>
-        <option value="Spell Card">Spell Card</option>
-        <option value="Spirit Monster">Spirit Monster</option>
-        <option value="Toon Monster">Toon Monster</option>
-        <option value="Trap Card">Trap Card</option>
-        <option value="Tuner Monster">Tuner Monster</option>
-        <option value="Union Effect Monster">Union Effect Monster</option>
+      <select id="type_select" name="type_select" onChange="checkOption(this)">
       </select>
+	  
+	  <input type="text" id="type" name="type" placeholder="Or enter a new type">
+
 
       <label for="desc">Description:</label>
       <textarea id="desc" name="desc" rows="4" required></textarea>
 
       <label for="arch">Archetype:</label>
-      <input type="text" id="arch" name="arch">
+	  <select id="arch_select" name="arch_select" onChange="checkOption(this)">
+	  </select>
+      <input type="text" id="arch" name="arch" placeholder="Or enter a new archetype">
 
       <label for="attribute">Attribute:</label>
-      <select id="attribute" name="attribute">
+      <select id="attr_select" name="attribute_select">
         <option value="DARK">DARK</option>
         <option value="DIVINE">DIVINE</option>
         <option value="EARTH">EARTH</option>
@@ -196,6 +182,7 @@
         <option value="WATER">WATER</option>
         <option value="WIND">WIND</option>
       </select>
+	  <input type="text" id="attr" name="attr" placeholder="Or enter a new attribute">
     </div>
 
     <div class="column" style="flex:1;">
@@ -210,10 +197,14 @@
       <input type="number" id="lvl" name="lvl">
 
       <label for="race">Race: (Spell/Trap types)</label>
-      <input type="text" id="race" name="race">
+	  <select id="race_select" name="race_select" onChange="checkOption(this)">
+	  </select>
+      <input type="text" id="race" name="race" placeholder="Or enter a new race">
 
       <label for="frametype">Frametype:</label>
-      <input type="text" id="frametype" name="frametype">
+	  <select id="ftype_select" name="frametype_select" onChange="checkOption(this)">
+	  </select>
+      <input type="text" id="ftype" name="ftype" placeholder="Or enter a new frametype">
 
       <button type="submit" class="submit-btn">Create Card</button>
     </div>
@@ -225,12 +216,25 @@
         <p id="drop-text">Drag & Drop Image Here<br>or Click to Select</p>
         <input type="file" id="card-image" name="card-image" accept="image/*" style="display:none;">
         <img id="preview" src="" alt="Image Preview" style="display:none; max-width:100%; margin-top:10px; border-radius: 3px;">
+		
       </div>
+	  <input type="text" id="image" name="image" placeholder="enter image name">
+	  <label for="image_select">Or choose an image:</label>
+	  <select id="image_select" name="image_select" onchange="showImagePreview(this)">
+	  </select>
     </div>
   </div>
 </form>
 
 <script>
+	
+	document.getElementById("card-image").addEventListener("change", () => {
+	  document.getElementById("image_select").selectedIndex = 0;
+	});
+
+	document.getElementById("image_select").addEventListener("change", () => {
+	  document.getElementById("card-image").value = "";
+	});
   const dropArea = document.getElementById('drop-area');
   const fileInput = document.getElementById('card-image');
   const preview = document.getElementById('preview');
@@ -284,10 +288,83 @@
     };
     reader.readAsDataURL(file);
   }
+  
+  window.onload = async () => {
+    const fetchConfigs = [
+	{ url: '/frame-image/list', selectId: 'image_select' },
+	{ url: '/type/list', selectId: 'type_select' },
+      { url: '/arch/list', selectId: 'arch_select' },
+      { url: '/attr/list', selectId: 'attr_select' },
+      { url: '/race/list', selectId: 'race_select' },
+      { url: '/ftype/list', selectId: 'ftype_select' }
+    ];
+
+    // Loop through each config
+    for (const { url, selectId } of fetchConfigs) {
+      try {
+        const response = await fetch(url);
+        const data = await response.json();
+        const select = document.getElementById(selectId);
+		const input = document.getElementById(selectId.replace('_select', ''));
+		// Optional: add a default first option (placeholder)
+		const placeholderOption = document.createElement('option');
+		placeholderOption.textContent = '-- Select an option --';
+		placeholderOption.selected = true;
+		
+		select.appendChild(placeholderOption);
+		
+        data.forEach(item => {
+          const option = document.createElement('option');
+          option.value = item.id;
+          option.textContent = item.name;
+          select.appendChild(option);
+        });
+
+
+		// Update input text when a new option is selected
+		select.addEventListener('change', () => {
+			  if (select.selectedIndex > 0) {
+			    input.value = select.options[select.selectedIndex].textContent;
+			  } else {
+			    input.value = '';
+			  }
+			});
+      } catch (error) {
+        console.error(`Failed to load data from ${url}:`, error);
+      }
+    }
+  };
+  
+
+  
+  // Show preview when image is selected from dropdown
+  function showImagePreview(select) {
+    const id = select.value;
+    const preview = document.getElementById('preview');
+    const dropText = document.getElementById('drop-text');
+    const imageNameInput = document.getElementById('image_name');
+
+    if (id) {
+      preview.src = '/frame-image/' + id;
+      preview.style.display = 'block';
+      dropText.style.display = 'none';
+
+      // Set the selected option's text as the image name
+      const selectedOption = select.options[select.selectedIndex];
+      imageNameInput.value = selectedOption.text;
+
+      // Optional: Clear file input if using dropdown
+      document.getElementById('card-image').value = "";
+    } else {
+      preview.style.display = 'none';
+      dropText.style.display = 'block';
+      imageNameInput.value = ''; // Clear the image name if "none" is selected
+    }
+  }
+
 </script>
   <div class="tf">
 	<a href="/card"><button>Back to Menu</button></a>
   </div>
-
 </body>
 </html>

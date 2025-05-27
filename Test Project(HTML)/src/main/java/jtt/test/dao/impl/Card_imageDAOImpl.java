@@ -57,4 +57,10 @@ public class Card_imageDAOImpl implements Card_imageDAO{
 	public Card_image getByImage(byte[] img)  {
 		return imageRepository.findByImage(img);
 	}
+
+	@Override
+	public Card_image getByName(String name) throws SQLException {
+		// TODO Auto-generated method stub
+		return imageRepository.findByName(name);
+	}
 }

@@ -31,7 +31,7 @@ public class Card_Type {
 	}
 
 
-	public int getCard_type() {
+	public int getCard_typeId() {
 		return card_type_id;
 	}
 

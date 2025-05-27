@@ -56,7 +56,7 @@ public class AttributeDAOImpl implements AttributeDAO {
 	@Override
 	public Attribute getByName(String name)  {
 		// TODO Auto-generated method stub
-		return null;
+		return attributeRepository.findByName(name);
 	}
 
 	

@@ -58,7 +58,7 @@ public class Frame_typeDAOImpl implements Frame_typeDAO {
 	@Override
 	public FrameType getByName(String name) throws SQLException {
 		// TODO Auto-generated method stub
-		return null;
+		return frame_typeRepository.findByName(name);
 	}
 
 }

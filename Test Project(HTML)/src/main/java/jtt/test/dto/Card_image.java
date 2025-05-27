@@ -21,15 +21,49 @@ public class Card_image {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name ="image_id")
 	private int image_id;
+	private String name;
 	private byte[] image;
+	private String content_type;
 	@OneToMany(mappedBy = "image")
 	private List<Card> cards;
 	
 public Card_image() {}
 
 
-public Card_image(byte[] image) {
+public String getContent_type() {
+	return content_type;
+}
+
+
+public void setContent_type(String content_type) {
+	this.content_type = content_type;
+}
+
+
+public String getName() {
+	return name;
+}
+
+
+public void setName(String name) {
+	this.name = name;
+}
+
+
+public List<Card> getCards() {
+	return cards;
+}
+
+
+public void setCards(List<Card> cards) {
+	this.cards = cards;
+}
+
+
+public Card_image(byte[] image, String name, String content_type) {
 	this.image = image;
+	this.name = name;
+	this.content_type = content_type;
 }
 
 
