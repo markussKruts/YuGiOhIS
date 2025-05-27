@@ -133,7 +133,8 @@ public class WebController {
 	return "card";
     }
     
- // Return JSON list of image metadata
+    
+    //card view image filler
     @GetMapping("/frame-image/list")
     @ResponseBody
     public List<Map<String, Object>> listImageMetadata() {
