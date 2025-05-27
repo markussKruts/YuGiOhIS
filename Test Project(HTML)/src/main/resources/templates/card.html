@@ -31,14 +31,15 @@ h1 {
   text-align:center;
   color:red;
 }
-button{
-	cursor:pointer;
-	padding: 14px 100px;
-      background-color: #28a745;
-      border: none;
-      border-radius: 8px;
-      font-size: 1.2rem;
-      transition: background-color 0.3s ease, transform 0.2s ease;
+button {
+  cursor: pointer;
+  width: 250px;        /* Fixed width */
+  height: 60px;        /* Fixed height */
+  background-color: #28a745;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.2rem;
+  transition: background-color 0.3s ease, transform 0.2s ease;
 }
 button:hover {
       background-color: #218838;
@@ -55,9 +56,11 @@ b {
 		<h1>Card Options!!!</h1>
 		<div class="tf">
 		<a href="/cardbuilder" type="button"><button>Create</button></a>
-		<a href="/main" type="button"><button>View</button></a>
-		<a href="/main" type="button"><button>Shop</button></a>
+		<a href="/ownCards" type="button"><button>View your cards</button></a>
+		<a href="/main" type="button"><button>View all cards</button></a>
 		</div>
-		
+		<div class="tf">
+		<a href="/main" type="button"><button>Back</button></a>
+		</div>
 	</body>
 </html>

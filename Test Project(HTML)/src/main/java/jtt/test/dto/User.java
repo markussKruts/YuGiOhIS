@@ -1,9 +1,12 @@
 package jtt.test.dto;
 
+import java.util.List;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 
@@ -18,6 +21,8 @@ public class User {
 	private String email;
 	private String password;
 	private String name;
+	@OneToMany(mappedBy = "user")
+	private List<Card> cards;
 	
 	public User(int user_id, String username, String email, String password, String name) {
 		this.user_id = user_id;

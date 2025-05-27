@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
+import jakarta.servlet.http.HttpSession;
 import jtt.test.dao.Card_imageDAO;
 import jtt.test.dao.impl.ArchetypeDAOImpl;
 import jtt.test.dao.impl.AttributeDAOImpl;
@@ -75,7 +76,7 @@ public class WebController {
     }
     
     @PostMapping("/submit")
- 	public String signup(@RequestParam String username, @RequestParam String email, @RequestParam String name, @RequestParam String password, Model model) {
+ 	public String signup(@RequestParam String username, @RequestParam String email, @RequestParam String name, @RequestParam String password, Model model, HttpSession session) {
     	if(service.getByUsername(username) != null) {
     		model.addAttribute("error", "username is taken");
     		return "signup";
@@ -86,14 +87,16 @@ public class WebController {
     user.setPassword(passwordEncoder.encode(password));
     user.setEmail(email);
     service.insert(user);
+    session.setAttribute("loggedInUser", user);
  	return "main";
     }
     @PostMapping("/login")
- 	public String login(@RequestParam String username, @RequestParam String password, Model model) {
+ 	public String login(@RequestParam String username, @RequestParam String password, Model model, HttpSession session) {
     	
     	if(service.getByUsername(username) != null) {
     		User user = service.getByUsername(username);
     		if(passwordEncoder.matches(password, user.getPassword())) {
+    			session.setAttribute("loggedInUser", user);
     			return "main";
     		}else {
     			model.addAttribute("error", "Invalid password.");
@@ -104,14 +107,20 @@ public class WebController {
  	return "index";
     }
 	@GetMapping("/")
-	public String greeting(Model model) {
+	public String greeting(Model model, HttpSession session) {
 	model.addAttribute("message", "hello world");
+	session.invalidate();
 	return "index";
 	}
 	@GetMapping("/cardbuilder")
 	public String build(Model model) {
 	model.addAttribute("message", "hello world");
 	return "cardbuilder";
+	}
+	@GetMapping("/ownCards")
+	public String ownCards(Model model) {
+	model.addAttribute("message", "hello world");
+	return "ownCards";
 	}
     @GetMapping("/main")
 	public String main(Model model) {
@@ -219,7 +228,8 @@ public class WebController {
             @RequestParam String race,
             @RequestParam String ftype,
             @RequestParam(value = "card-image", required = false) MultipartFile imageFile,
-            @RequestParam String image
+            @RequestParam String image,
+            HttpSession session
     ) throws SQLException, IOException {
 
         // Don't proceed if the card already exists
@@ -262,6 +272,9 @@ public class WebController {
             cardRace = new Race(race);
             raceService.insert(cardRace);
         }
+        
+        // User
+        User user = (User) session.getAttribute("loggedInUser");
 
         // Card Image
         Card_image cardImage = imgService.getByName(image);
@@ -286,6 +299,7 @@ public class WebController {
         card.setFrame_type(frameType);
         card.setRace(cardRace);
         card.setImage(cardImage);
+        card.setUser(user);
 
         cardService.insert(card);
 

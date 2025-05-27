@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import jtt.test.dao.CardDAO;
 import jtt.test.dto.Card;
+import jtt.test.dto.User;
 import jtt.test.repositories.CardRepository;
 
 @Service
@@ -70,6 +71,11 @@ public class CardDAOImpl implements CardDAO{
 	@Override
 	public List<Card> getByType(String type) throws SQLException {
 		return repository.findByType(type);
+	}
+
+	@Override
+	public List<Card> getByUser(User user) throws SQLException {
+		return repository.findByUser(user);
 	}
 
 }

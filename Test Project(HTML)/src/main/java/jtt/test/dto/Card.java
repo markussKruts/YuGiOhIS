@@ -40,12 +40,15 @@ public class Card {
 	@ManyToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name = "image_id")
 	private Card_image image;
+	@ManyToOne(cascade = CascadeType.ALL)
+	@JoinColumn(name = "user_id")
+	private User user;
 
 
 	public Card() {}
 	
 	
-public Card(String name, String description, int attack, int defense, int level, Attribute attribute, Race race, Archetype archetype, FrameType frame_type, Card_Type card_type, Card_image image ) {
+public Card(String name, String description, int attack, int defense, int level, Attribute attribute, Race race, Archetype archetype, FrameType frame_type, Card_Type card_type, Card_image image, User user) {
 	this.name = name;
 	this.description = description;
 	this.attack = attack;
@@ -57,7 +60,7 @@ public Card(String name, String description, int attack, int defense, int level,
 	this.frame_type = frame_type;
 	this.card_type = card_type;
 	this.image = image;
-
+	this.user = user;
 }
 
 
@@ -75,6 +78,16 @@ public void setCard_id(int card_id) {
 }
 
 
+
+
+public User getUser() {
+	return user;
+}
+
+
+public void setUser(User user) {
+	this.user = user;
+}
 
 
 public String getName() {
