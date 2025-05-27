@@ -20,7 +20,7 @@ public class Archetype {
 	private int archetype_id;
 	private String name;
 	@OneToMany(mappedBy = "archetype")
-	private List<Cards> cards;
+	private List<Card> cards;
 	
 	public Archetype(String name) {
 		this.name = name;

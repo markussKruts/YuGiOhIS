@@ -1,5 +1,6 @@
 package jtt.test.dto;
 
+import java.sql.Blob;
 import java.util.List;
 
 
@@ -20,15 +21,15 @@ public class Card_image {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name ="image_id")
 	private int image_id;
-	private String image_url;
+	private byte[] image;
 	@OneToMany(mappedBy = "image")
-	private List<Cards> cards;
+	private List<Card> cards;
 	
 public Card_image() {}
 
 
-public Card_image(String image_url) {
-	this.image_url = image_url;
+public Card_image(byte[] image) {
+	this.image = image;
 }
 
 
@@ -43,13 +44,13 @@ public int getImage_id() {
 public void setImage_id(int image_id) {
 	this.image_id = image_id;
 }
-public String getimage_url() {
-	return image_url;
+public byte[] getImage() {
+	return image;
 }
 
 
 
-public void setimage_url(String image_url) {
-	this.image_url = image_url;
+public void setImage(byte[] image) {
+	this.image = image;
 }
 }

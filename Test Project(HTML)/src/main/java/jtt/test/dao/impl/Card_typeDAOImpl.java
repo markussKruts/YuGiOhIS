@@ -57,8 +57,7 @@ public class Card_typeDAOImpl implements Card_typeDAO {
 
 	@Override
 	public Card_Type getByName(String name) throws SQLException {
-		// TODO Auto-generated method stub
-		return null;
+		return card_typeRepository.findByName(name);
 	}
 
 }

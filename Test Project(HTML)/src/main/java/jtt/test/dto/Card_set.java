@@ -24,7 +24,7 @@ public class Card_set {
 private int card_set_id;
 @ManyToOne(cascade = CascadeType.ALL)
 @JoinColumn(name = "card_id")
-private Cards card_id;
+private Card card_id;
 @ManyToOne(cascade = CascadeType.ALL)
 @JoinColumn(name = "set_id")
 private Set set_id;
@@ -33,7 +33,7 @@ private Set set_id;
 private Rarities rarity_id;
 
 
-public Card_set(Cards card_id,Set set_id,Rarities rarity_id) {
+public Card_set(Card card_id,Set set_id,Rarities rarity_id) {
 	this.card_id = card_id;
 	this.rarity_id = rarity_id;
 	this.set_id = set_id;
@@ -46,11 +46,11 @@ public void setCard_set_id(int card_set_id) {
 	this.card_set_id = card_set_id;
 }
 
-public Cards getCard_id() {
+public Card getCard_id() {
 	return card_id;
 }
 
-public void setCard_id(Cards card_id) {
+public void setCard_id(Card card_id) {
 	this.card_id = card_id;
 }
 

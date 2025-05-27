@@ -18,7 +18,7 @@ public class Race {
 	private int race_id;
 	private	String name;
 	@OneToMany(mappedBy = "race")
-	private List<Cards> cards;
+	private List<Card> card;
 	
 	public Race() {}
 	

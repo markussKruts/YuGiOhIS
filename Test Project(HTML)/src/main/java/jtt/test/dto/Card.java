@@ -13,7 +13,7 @@ import jakarta.persistence.Table;
 @Entity
 @Table(name = "cards")
 
-public class Cards {
+public class Card {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int card_id;
@@ -42,10 +42,10 @@ public class Cards {
 	private Card_image image;
 
 
-	public Cards() {}
+	public Card() {}
 	
 	
-public Cards(String name, String description, int attack, int defense, int level, Attribute attribute, Race race, Archetype archetype, FrameType frame_type, Card_Type card_type, Card_image image ) {
+public Card(String name, String description, int attack, int defense, int level, Attribute attribute, Race race, Archetype archetype, FrameType frame_type, Card_Type card_type, Card_image image ) {
 	this.name = name;
 	this.description = description;
 	this.attack = attack;
@@ -71,7 +71,7 @@ public int getCard_id() {
 
 
 public void setCard_id(int card_id) {
-	this.card_id = card_id;
+	this.card_id  = card_id;
 }
 
 
@@ -87,12 +87,12 @@ public void setName(String name) {
 }
 
 
-public String getdescription() {
+public String getDescription() {
 	return description;
 }
 
 
-public void setdescription(String description) {
+public void setDescription(String description) {
 	this.description = description;
 }
 
@@ -127,62 +127,62 @@ public void setLevel(int level) {
 }
 
 
-public Attribute getAttribute_id() {
+public Attribute getAttribute () {
 	return attribute;
 }
 
 
-public void setAttribute_id(Attribute attribute) {
+public void setAttribute (Attribute attribute) {
 	this.attribute = attribute;
 }
 
 
-public Race getRace_id() {
+public Race getRace () {
 	return race;
 }
 
 
-public void setRace_id(Race race) {
+public void setRace (Race race) {
 	this.race = race;
 }
 
 
-public Archetype getArchetype_id() {
+public Archetype getArchetype () {
 	return archetype;
 }
 
 
-public void setArchetype_id(Archetype archetype) {
+public void setArchetype (Archetype archetype) {
 	this.archetype = archetype;
 }
 
 
-public FrameType getFrame_type_id() {
+public FrameType getFrame_type () {
 	return frame_type;
 }
 
 
-public void setFrame_type_id(FrameType frame_type) {
+public void setFrame_type (FrameType frame_type) {
 	this.frame_type = frame_type;
 }
 
 
-public Card_Type getCard_type_id() {
+public Card_Type getCard_type () {
 	return card_type;
 }
 
 
-public void setCard_type_id(Card_Type card_type) {
+public void setCard_type (Card_Type card_type) {
 	this.card_type = card_type;
 }
 
 
-public Card_image getImage_id() {
+public Card_image getImage () {
 	return image;
 }
 
 
-public void setImage_id(Card_image image) {
+public void setImage (Card_image image) {
 	this.image = image;
 }
 

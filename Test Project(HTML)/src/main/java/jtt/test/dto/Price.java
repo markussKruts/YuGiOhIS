@@ -19,14 +19,14 @@ public class Price {
 private int price_id;
 	@ManyToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name = "card_id")
-private Cards card_id;
+private Card card_id;
 private int price;
 
 
 public Price() {}
 
 
-public Price(Cards card_id,int price) {
+public Price(Card card_id,int price) {
 	this.card_id = card_id;
 	this.price = price;
 }
@@ -41,13 +41,13 @@ public void setPrice_id(int price_id) {
 }
 
 
-public Cards getCard_id() {
+public Card getCard_id() {
 	return card_id;
 }
 
 
 
-public void setCard_id(Cards card_id) {
+public void setCard_id(Card card_id) {
 	this.card_id = card_id;
 }
 

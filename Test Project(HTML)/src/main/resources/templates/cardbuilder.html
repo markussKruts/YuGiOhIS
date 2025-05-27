@@ -17,9 +17,9 @@
     }
 
     .tf {
-      gap: 30px;
-      width: 850px;
-      height: 180px;
+      gap: 40px;
+      width: 950px;
+      height: 40px;
       align-items: center;
       display: flex;
       justify-content: center;
@@ -70,7 +70,7 @@
     }
 
     form {
-      max-width: 800px;
+      max-width: 1000px;
       margin: 30px auto;
       padding: 50px;
       background: rgba(255, 255, 255, 0.9);
@@ -105,8 +105,9 @@
   padding: 10px;
   text-align: center;
   cursor: pointer;
-  min-height: 300px;      /* Increased height for bigger image */
-  width: 350px;           /* Fixed width for consistent sizing */
+  min-height: 400px;      /* Increased height for bigger image */
+  width: 200px;
+  height: 300px;           /* Fixed width for consistent sizing */
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -121,12 +122,11 @@
 }
 
 #preview {
-  max-width: 100%;       /* fills the container width */
-  max-height: 280px;     /* limit height to fit inside drop area */
+  width: 100%;
+  height: 100%;
   display: block;
-  margin-top: 10px;
   border-radius: 3px;
-  object-fit: contain;    /* keeps aspect ratio */
+  object-fit: contain;
 }
 
     .submit-btn:hover {
@@ -186,7 +186,7 @@
       <label for="arch">Archetype:</label>
       <input type="text" id="arch" name="arch">
 
-      <label for="attribute">Card Type:</label>
+      <label for="attribute">Attribute:</label>
       <select id="attribute" name="attribute">
         <option value="DARK">DARK</option>
         <option value="DIVINE">DIVINE</option>
@@ -210,13 +210,10 @@
       <input type="number" id="lvl" name="lvl">
 
       <label for="race">Race: (Spell/Trap types)</label>
-      <input type="number" id="race" name="race">
+      <input type="text" id="race" name="race">
 
       <label for="frametype">Frametype:</label>
       <input type="text" id="frametype" name="frametype">
-
-      <label for="price">Price:</label>
-      <input type="number" id="price" name="price">
 
       <button type="submit" class="submit-btn">Create Card</button>
     </div>
@@ -289,7 +286,7 @@
   }
 </script>
   <div class="tf">
-    <a href="/card"><button>Back to Menu</button></a>
+	<a href="/card"><button>Back to Menu</button></a>
   </div>
 
 </body>

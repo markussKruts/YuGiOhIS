@@ -18,7 +18,7 @@ public class Attribute {
 private int attribute_id;
 private String name;
 @OneToMany(mappedBy = "attribute")
-private List<Cards> cards;
+private List<Card> cards;
 
 	public Attribute() {}
 

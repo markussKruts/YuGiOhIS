@@ -19,7 +19,7 @@ public class Card_Type {
 	private int card_type_id;
 	private String name;
 	@OneToMany(mappedBy = "card_type")
-	private List<Cards> cards;
+	private List<Card> cards;
 	
 	
 	public Card_Type() {}
