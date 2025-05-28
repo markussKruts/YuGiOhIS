@@ -29,12 +29,12 @@ public Attribute(String name) {
 
 
 
-public int getAttribute_id() {
+public int getId() {
 return attribute_id;
 }
 
 
-public void setAttribute_id(int attribute_id) {
+public void setId(int attribute_id) {
 this.attribute_id = attribute_id;
 }
 

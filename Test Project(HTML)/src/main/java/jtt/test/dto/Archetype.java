@@ -27,12 +27,12 @@ public class Archetype {
 	}
 	public Archetype() {}
 
-	public int getArchetype_id() {
+	public int getId() {
 		return archetype_id;
 	}
 
 
-	public void setArchetype_id(int archetype_id) {
+	public void setId(int archetype_id) {
 		this.archetype_id = archetype_id;
 	}
 

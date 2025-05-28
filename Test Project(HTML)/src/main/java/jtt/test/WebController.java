@@ -23,6 +23,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import jtt.test.dao.Card_imageDAO;
@@ -142,8 +144,9 @@ public class WebController {
     }
 
     @GetMapping("/ownCards")
-    public String getCards(Model model) {
-        List<Card> cards = cardService.getAllData();
+    public String getCards(Model model, HttpSession session) throws SQLException {
+    	User user = (User) session.getAttribute("loggedInUser");
+        List<Card> cards = cardService.getByUser(user);
         System.out.println("Cards found: " + cards.size()); // Debug
         for (Card c : cards) {
             System.out.println("Card: " + c.getName());
@@ -159,7 +162,7 @@ public class WebController {
     public List<Map<String, Object>> listType() {
         return typeService.getAllData().stream().map(typee -> {
             Map<String, Object> map = new HashMap<>();
-            map.put("id", typee.getCard_typeId());
+            map.put("id", typee.getId());
             map.put("name", typee.getName());
             return map;
         }).toList();
@@ -171,7 +174,7 @@ public class WebController {
     public List<Map<String, Object>> listArch() {
         return archService.getAllData().stream().map(arch -> {
             Map<String, Object> map = new HashMap<>();
-            map.put("id", arch.getArchetype_id());
+            map.put("id", arch.getId());
             map.put("name", arch.getName());
             return map;
         }).toList();
@@ -182,7 +185,7 @@ public class WebController {
     public List<Map<String, Object>> listRace() {
         return raceService.getAllData().stream().map(race -> {
             Map<String, Object> map = new HashMap<>();
-            map.put("id", race.getRace_id());
+            map.put("id", race.getId());
             map.put("name", race.getName());
             return map;
         }).toList();
@@ -204,7 +207,7 @@ public class WebController {
     public List<Map<String, Object>> listAttr() {
         return attrService.getAllData().stream().map(attr -> {
             Map<String, Object> map = new HashMap<>();
-            map.put("id", attr.getAttribute_id());
+            map.put("id", attr.getId());
             map.put("name", attr.getName());
             return map;
         }).toList();
@@ -237,8 +240,25 @@ public class WebController {
 	    if (id != null) {
 	        Card card = cardService.getByID(id);
 	        model.addAttribute("card", card);
+	        try {
+	            ObjectMapper objectMapper = new ObjectMapper();
+	            String cardJson = objectMapper.writeValueAsString(card);
+	            model.addAttribute("cardJson", cardJson);
+	        } catch (Exception e) {
+	            model.addAttribute("cardJson", "{}");
+	        }
+
 	    } else {
-	        model.addAttribute("card", new Card());
+	    	Card card = new Card();
+	        model.addAttribute("card", card);
+	        try {
+	            ObjectMapper objectMapper = new ObjectMapper();
+	            String cardJson = objectMapper.writeValueAsString(card);
+	            model.addAttribute("cardJson", cardJson);
+	        } catch (Exception e) {
+	            model.addAttribute("cardJson", "{}");
+	        }
+
 	    }
 	return "cardbuilder";
 	}
@@ -259,7 +279,7 @@ public class WebController {
 	        HttpSession session) throws IOException, SQLException {
 
 		Card card;
-		if (id != null) {
+		if (id != null && id != 0) {
 		    card = cardService.getByID(id);
 		    if (card == null) {
 		        // Fallback if the card doesn't exist — prevent insert
@@ -332,7 +352,7 @@ public class WebController {
 	        imgService.insert(cardImage);
 	    }
 	    card.setImage(cardImage);
-	    if (id != null) {
+	    if (id != null && id != 0) {
 	        cardService.update(card, id);
 	    } else {
 	        cardService.insert(card);

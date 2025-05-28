@@ -27,12 +27,12 @@ public class Race {
 	}
 
 
-	public int getRace_id() {
+	public int getId() {
 		return race_id;
 	}
 
 
-	public void setRace_id(int race_id) {
+	public void setId(int race_id) {
 		this.race_id = race_id;
 	}
 

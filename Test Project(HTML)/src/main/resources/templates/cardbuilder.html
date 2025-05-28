@@ -115,7 +115,9 @@
   transition: border-color 0.3s ease;
   margin: 0 auto;         /* Center the drop area horizontally */
 }
-
+#drop-area * {
+  pointer-events: none;
+}
 #drop-area.dragover {
   border-color: #28a745;
   color: #28a745;
@@ -128,13 +130,17 @@
   border-radius: 3px;
   object-fit: contain;
 }
-
     .submit-btn:hover {
       background-color: #0056b3;
     }
   </style>
 </head>
 <body>
+	<script th:inline="javascript">
+	  /*<![CDATA[*/
+	  const card = [[${cardJson}]];
+	  /*]]>*/
+	  </script>
 <script>
 	function checkOption(obj) {
     var input = document.getElementsByName("atk");
@@ -150,54 +156,54 @@
 	
   <a><img src="/img/yugioh.png" alt="Yu-Gi-Oh! Logo"></a>
  <h1>Card Builder</h1>
+ <input type="hidden" name="id" th:value="${card.id}">
 <form action="/submit-card" method="post" enctype="multipart/form-data">
   <div class="form-columns" style="display:flex; gap: 40px;">
     <div class="column" style="flex:1;">
       <!-- First column inputs -->
       <label for="name">Card Name:</label>
-      <input type="text" id="name" name="name" required>
+      <input type="text" id="name" name="name" th:value="${card.name}" required>
 
       <label for="type">Card Type:</label>
       <select id="type_select" name="type_select" onChange="checkOption(this)">
       </select>
 	  
-	  <input type="text" id="type" name="type" placeholder="Or enter a new type">
+	  <input type="text" id="type" name="type" placeholder="Or enter a new type"th:value="${card.card_type?.name}">
 
 
       <label for="desc">Description:</label>
-      <textarea id="desc" name="desc" rows="4" required></textarea>
+      <textarea id="desc" name="desc" rows="4" th:text="${card.description}" required></textarea>
 
       <label for="arch">Archetype:</label>
 	  <select id="arch_select" name="arch_select" onChange="checkOption(this)">
 	  </select>
-      <input type="text" id="arch" name="arch" placeholder="Or enter a new archetype">
+      <input type="text" id="arch" name="arch" placeholder="Or enter a new archetype"th:value="${card.archetype?.name}">
 
       <label for="attribute">Attribute:</label>
       <select id="attr_select" name="attribute_select">
       </select>
-	  <input type="text" id="attr" name="attr" placeholder="Or enter a new attribute">
+	  <input type="text" id="attr" name="attr" placeholder="Or enter a new attribute"th:value="${card.attribute?.name}">
     </div>
-	<input type="hidden" name="id" th:value="${card.id}">
     <div class="column" style="flex:1;">
       <!-- Second column inputs -->
       <label for="atk">ATK (Monsters only):</label>
-      <input type="number" id="atk" name="atk">
+      <input type="number" id="atk" name="atk" th:value="${card.attack}">
 
       <label for="def">DEF (Monsters only):</label>
-      <input type="number" id="def" name="def">
+      <input type="number" id="def" name="def" th:value="${card.defense}">
 
       <label for="lvl">LVL (Monsters only):</label>
-      <input type="number" id="lvl" name="lvl">
+      <input type="number" id="lvl" name="lvl"th:value="${card.level}">
 
       <label for="race">Race: (Spell/Trap types)</label>
 	  <select id="race_select" name="race_select" onChange="checkOption(this)">
 	  </select>
-      <input type="text" id="race" name="race" placeholder="Or enter a new race">
+      <input type="text" id="race" name="race" placeholder="Or enter a new race"th:value="${card.race?.name}">
 
       <label for="frametype">Frametype:</label>
 	  <select id="ftype_select" name="frametype_select" onChange="checkOption(this)">
 	  </select>
-      <input type="text" id="ftype" name="ftype" placeholder="Or enter a new frametype">
+      <input type="text" id="ftype" name="ftype" placeholder="Or enter a new frametype"th:value="${card.frame_type?.name}">
 
       <button type="submit" class="submit-btn">Create Card</button>
     </div>
@@ -218,9 +224,11 @@
     </div>
   </div>
 </form>
+<div class="tf">
+<a href="/card"><button>Back to Menu</button></a>
+</div>
+  <script>
 
-<script>
-	
 	document.getElementById("card-image").addEventListener("change", () => {
 	  document.getElementById("image_select").selectedIndex = 0;
 	});
@@ -251,14 +259,17 @@
 
   dropArea.addEventListener('drop', (e) => {
     e.preventDefault();
+    dropArea.classList.remove('dragover');
     dropArea.style.borderColor = '#ccc';
     dropArea.style.color = '#666';
 
-    if(e.dataTransfer.files.length) {
+    if (e.dataTransfer.files.length) {
+      const file = e.dataTransfer.files[0];
       fileInput.files = e.dataTransfer.files;
-      showPreview(fileInput.files[0]);
+      showPreview(file);
     }
   });
+
 
   // Preview image on file select
   fileInput.addEventListener('change', () => {
@@ -284,50 +295,104 @@
   
   window.onload = async () => {
     const fetchConfigs = [
-	{ url: '/frame-image/list', selectId: 'image_select' },
-	{ url: '/type/list', selectId: 'type_select' },
+      { url: '/frame-image/list', selectId: 'image_select' },
+      { url: '/type/list', selectId: 'type_select' },
       { url: '/arch/list', selectId: 'arch_select' },
       { url: '/attr/list', selectId: 'attr_select' },
       { url: '/race/list', selectId: 'race_select' },
       { url: '/ftype/list', selectId: 'ftype_select' }
     ];
 
-    // Loop through each config
-    for (const { url, selectId } of fetchConfigs) {
-      try {
-        const response = await fetch(url);
-        const data = await response.json();
-        const select = document.getElementById(selectId);
-		const input = document.getElementById(selectId.replace('_select', ''));
-		// Optional: add a default first option (placeholder)
-		const placeholderOption = document.createElement('option');
-		placeholderOption.textContent = '-- Select an option --';
-		placeholderOption.selected = true;
-		
-		select.appendChild(placeholderOption);
-		
-        data.forEach(item => {
-          const option = document.createElement('option');
-          option.value = item.id;
-          option.textContent = item.name;
-          select.appendChild(option);
-        });
+    const populateSelect = async ({ url, selectId }) => {
+      const response = await fetch(url);
+      const data = await response.json();
+      const select = document.getElementById(selectId);
+      const input = document.getElementById(selectId.replace('_select', ''));
 
+      // Clear previous options if any
+      select.innerHTML = '';
 
-		// Update input text when a new option is selected
-		select.addEventListener('change', () => {
-			  if (select.selectedIndex > 0) {
-			    input.value = select.options[select.selectedIndex].textContent;
-			  } else {
-			    input.value = '';
-			  }
-			});
-      } catch (error) {
-        console.error(`Failed to load data from ${url}:`, error);
-      }
+      // Placeholder option - NOT selected by default
+      const placeholder = document.createElement('option');
+      placeholder.textContent = '-- Select an option --';
+      placeholder.value = ''; // empty value for placeholder
+      placeholder.disabled = true;
+      select.appendChild(placeholder);
+
+      // Add options
+      data.forEach(item => {
+        const option = document.createElement('option');
+        option.value = item.id;
+        option.textContent = item.name || item.race || item.image_name || "Unknown";
+        select.appendChild(option);
+      });
+
+      // Sync input field when changed
+      select.addEventListener('change', () => {
+        input.value = select.options[select.selectedIndex].textContent;
+      });
+    };
+
+    // Populate all selects
+    await Promise.all(fetchConfigs.map(populateSelect));
+	// Now set the select values using card data
+	setSelectValueById('type_select', card.card_type?.card_type_id);
+	setSelectValueById('arch_select', card.archetype?.archetype_id);
+	setSelectValueById('attr_select', card.attribute?.attribute_id);
+	setSelectValueById('race_select', card.race?.race_id);
+	setSelectValueById('ftype_select', card.frame_type?.frame_type_id);
+	setSelectValueById('image_select', card.image?.image_id);
+
+    // Helper to select option by id or fallback to placeholder
+	const setSelectValueById = (selectId, id) => {
+	  const select = document.getElementById(selectId);
+	  if (!select) return;
+
+	  // Default to placeholder (index 0)
+	  let foundIndex = 0;
+
+	  if (id != null) {
+	    for (let i = 1; i < select.options.length; i++) {
+	      if (select.options[i].value == id) {
+	        foundIndex = i;
+	        break;
+	      }
+	    }
+	  }
+
+	  select.selectedIndex = foundIndex;
+
+	  // Sync input field with selected option text ONLY if NOT placeholder
+	  const input = document.getElementById(selectId.replace('_select', ''));
+	  if (input) {
+	    if (foundIndex === 0) {
+	      input.value = ''; // Clear input if placeholder selected
+	    } else {
+	      input.value = select.options[foundIndex].textContent;
+	    }
+	  }
+	};
+    // Show image preview if image exists
+    if (card.image?.id) {
+      const preview = document.getElementById('preview');
+      preview.src = "/frame-image/" + card.image.id;
+      preview.style.display = 'block';
+      document.getElementById('drop-text').style.display = 'none';
     }
   };
-  
+
+
+  // Fill other fields from card object if id != 0
+  if (card && card.id !== 0) {
+    const fields = ['name', 'type', 'desc', 'arch', 'attr', 'atk', 'def', 'lvl', 'race', 'ftype', 'image'];
+    fields.forEach(field => {
+      const el = document.getElementById(field);
+      if (el && card[field] != null) {
+        el.value = card[field];
+      }
+    });
+	}
+
 
   
   // Show preview when image is selected from dropdown
@@ -335,7 +400,7 @@
     const id = select.value;
     const preview = document.getElementById('preview');
     const dropText = document.getElementById('drop-text');
-    const imageNameInput = document.getElementById('image_name');
+    const imageNameInput = document.getElementById('image');
 
     if (id) {
       preview.src = '/frame-image/' + id;
@@ -356,8 +421,5 @@
   }
 
 </script>
-  <div class="tf">
-	<a href="/card"><button>Back to Menu</button></a>
-  </div>
 </body>
 </html>

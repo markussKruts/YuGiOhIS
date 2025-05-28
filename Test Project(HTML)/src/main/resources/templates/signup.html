@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Yu-Gi-Oh! Sign up</title>
     <style>
+        /* [existing styles remain unchanged] */
         img {
             display: block;
             margin: auto;
@@ -59,11 +60,17 @@
 
         button {
             cursor: pointer;
-            padding: 14px 50px;
-            background: green;
+            padding: 14px 100px;
+            background-color: #28a745;
             border: none;
-            border-radius: 5px;
-            font-size: 16px;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        button:hover {
+            background-color: #218838;
+            transform: scale(1.05);
         }
 
         .login-link {
@@ -71,32 +78,29 @@
             margin-top: 10px;
             font-size: 16px;
         }
-        
-button{
-	cursor:pointer;
-	padding: 14px 100px;
-      background-color: #28a745;
-      border: none;
-      border-radius: 8px;
-      font-size: 1.2rem;
-      transition: background-color 0.3s ease, transform 0.2s ease;
-}
-button:hover {
-      background-color: #218838;
-      transform: scale(1.05);
-}
     </style>
+
     <script>
         function showError(message) {
             alert(message);
+        }
+
+        function validatePasswords(event) {
+            const password = document.querySelector('input[name="password"]').value;
+            const confirm = document.querySelector('input[name="confirm"]').value;
+
+            if (password !== confirm) {
+                event.preventDefault(); // Stop form from submitting
+                alert("Passwords do not match!");
+            }
         }
     </script>
 </head>
 <body>
     <a><img src="/img/yugioh.png" alt="yyy"></a>
 
-    <form action="/submit" method="post">
-		    <h1>Sign up!!!</h1>
+    <form action="/submit" method="post" onsubmit="validatePasswords(event)">
+        <h1>Sign up!!!</h1>
         <div class="form-row">
             <b>Username</b>
             <input type="text" placeholder="username" name="username" required>
@@ -113,7 +117,7 @@ button:hover {
             <b>Password</b>
             <input type="password" placeholder="********" name="password" required>
             <b>Confirm</b>
-            <input type="password" placeholder="********" required>
+            <input type="password" placeholder="********" name="confirm" required>
         </div>
 
         <div class="btn">

@@ -31,12 +31,12 @@ public class Card_Type {
 	}
 
 
-	public int getCard_typeId() {
+	public int getId() {
 		return card_type_id;
 	}
 
 
-	public void setCard_type(int card_type_id) {
+	public void setId(int card_type_id) {
 		this.card_type_id = card_type_id;
 	}
 

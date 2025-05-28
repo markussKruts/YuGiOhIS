@@ -43,16 +43,6 @@ private List<Card> cards;
 	}
 
 
-	public String getname() {
-		return name;
-	}
-
-
-	public void setname(String name) {
-		this.name = name;
-	}
-
-
 	public String getName() {
 		return name;
 	}
@@ -61,6 +51,7 @@ private List<Card> cards;
 	public void setName(String name) {
 		this.name = name;
 	}
+
 
 
 	}

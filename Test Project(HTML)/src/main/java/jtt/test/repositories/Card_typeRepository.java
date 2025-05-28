@@ -9,6 +9,6 @@ import jtt.test.dto.User;
 
 
 public interface Card_typeRepository extends CrudRepository<Card_Type, Integer>{
-	@Query("SELECT u FROM User u WHERE u.name = :name")
+	@Query("SELECT u FROM Card_Type u WHERE u.name = :name")
 	Card_Type findByName(@Param("name") String name);
 }
