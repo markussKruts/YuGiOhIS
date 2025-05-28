@@ -69,13 +69,13 @@ public Card_image(byte[] image, String name, String content_type) {
 
 
 
-public int getImage_id() {
+public int getId() {
 	return image_id;
 }
 
 
 
-public void setImage_id(int image_id) {
+public void setId(int image_id) {
 	this.image_id = image_id;
 }
 public byte[] getImage() {

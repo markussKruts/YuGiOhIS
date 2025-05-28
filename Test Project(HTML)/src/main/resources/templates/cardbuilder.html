@@ -174,17 +174,10 @@
 
       <label for="attribute">Attribute:</label>
       <select id="attr_select" name="attribute_select">
-        <option value="DARK">DARK</option>
-        <option value="DIVINE">DIVINE</option>
-        <option value="EARTH">EARTH</option>
-        <option value="FIRE">FIRE</option>
-        <option value="LIGHT">LIGHT</option>
-        <option value="WATER">WATER</option>
-        <option value="WIND">WIND</option>
       </select>
 	  <input type="text" id="attr" name="attr" placeholder="Or enter a new attribute">
     </div>
-
+	<input type="hidden" name="id" th:value="${card.id}">
     <div class="column" style="flex:1;">
       <!-- Second column inputs -->
       <label for="atk">ATK (Monsters only):</label>

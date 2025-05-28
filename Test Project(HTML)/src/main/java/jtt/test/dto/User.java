@@ -1,5 +1,6 @@
 package jtt.test.dto;
 
+import java.io.Serializable;
 import java.util.List;
 
 import jakarta.persistence.Entity;
@@ -13,7 +14,11 @@ import jakarta.persistence.Table;
 @Entity
 @Table(name = "users")
 
-public class User {
+public class User implements Serializable{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int user_id;

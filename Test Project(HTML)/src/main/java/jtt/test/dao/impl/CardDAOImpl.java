@@ -36,8 +36,9 @@ public class CardDAOImpl implements CardDAO{
 			cardData.setLevel(value.getLevel());
 			cardData.setRace(value.getRace());
 			cardData.setFrame_type(value.getFrame_type());
+			cardData.setImage(value.getImage());
 		}
-		return repository.save(value);
+		return repository.save(cardData);
 	}
 
 	@Override
@@ -60,6 +61,7 @@ public class CardDAOImpl implements CardDAO{
 	@Override
 	public List<Card> getAllData() {
 		List<Card> Cards = (List<Card>) repository.findAll();
+		System.out.println("Service cards count: " + Cards.size());
 		return Cards;
 	}
 

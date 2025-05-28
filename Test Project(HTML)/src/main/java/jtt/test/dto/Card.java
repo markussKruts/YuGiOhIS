@@ -12,38 +12,44 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "cards")
-
 public class Card {
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private int card_id;
-	private String name;
-	private String description;
-	private int attack;
-	private int defense;
-	private int level;
-	@ManyToOne(cascade = CascadeType.ALL)
-	@JoinColumn(name = "attribute_id")
-	private Attribute attribute;
-	@ManyToOne(cascade = CascadeType.ALL)
-	@JoinColumn(name = "race_id")
-	private Race race;
-	@ManyToOne(cascade = CascadeType.ALL)
-	@JoinColumn(name = "archetype_id")
-	private Archetype archetype;
-	@ManyToOne(cascade = CascadeType.ALL)
-	@JoinColumn(name = "frame_type_id")
-	private FrameType frame_type;
-	@ManyToOne(cascade = CascadeType.ALL)
-	@JoinColumn(name = "card_type_id")
-	private Card_Type card_type;
-	@ManyToOne(cascade = CascadeType.ALL)
-	@JoinColumn(name = "image_id")
-	private Card_image image;
-	@ManyToOne(cascade = CascadeType.ALL)
-	@JoinColumn(name = "user_id")
-	private User user;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int card_id;
 
+    private String name;
+    private String description;
+    private int attack;
+    private int defense;
+    private int level;
+
+    @ManyToOne
+    @JoinColumn(name = "attribute_id")
+    private Attribute attribute;
+
+    @ManyToOne
+    @JoinColumn(name = "race_id")
+    private Race race;
+
+    @ManyToOne
+    @JoinColumn(name = "archetype_id")
+    private Archetype archetype;
+
+    @ManyToOne
+    @JoinColumn(name = "frame_type_id")
+    private FrameType frame_type;
+
+    @ManyToOne
+    @JoinColumn(name = "card_type_id")
+    private Card_Type card_type;
+
+    @ManyToOne
+    @JoinColumn(name = "image_id")
+    private Card_image image;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 
 	public Card() {}
 	
@@ -66,14 +72,14 @@ public Card(String name, String description, int attack, int defense, int level,
 
 
 
-public int getCard_id() {
+public int getId() {
 	return card_id;
 }
 
 
 
 
-public void setCard_id(int card_id) {
+public void setId(int card_id) {
 	this.card_id  = card_id;
 }
 

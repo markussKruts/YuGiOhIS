@@ -13,7 +13,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -21,6 +24,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import jtt.test.dao.Card_imageDAO;
 import jtt.test.dao.impl.ArchetypeDAOImpl;
 import jtt.test.dao.impl.AttributeDAOImpl;
@@ -79,7 +83,7 @@ public class WebController {
  	public String signup(@RequestParam String username, @RequestParam String email, @RequestParam String name, @RequestParam String password, Model model, HttpSession session) {
     	if(service.getByUsername(username) != null) {
     		model.addAttribute("error", "username is taken");
-    		return "signup";
+    		return "redirect:/signup";
     }
     User user = new User();
     user.setName(name);
@@ -88,7 +92,7 @@ public class WebController {
     user.setEmail(email);
     service.insert(user);
     session.setAttribute("loggedInUser", user);
- 	return "main";
+ 	return "redirect:/main";
     }
     @PostMapping("/login")
  	public String login(@RequestParam String username, @RequestParam String password, Model model, HttpSession session) {
@@ -97,30 +101,20 @@ public class WebController {
     		User user = service.getByUsername(username);
     		if(passwordEncoder.matches(password, user.getPassword())) {
     			session.setAttribute("loggedInUser", user);
-    			return "main";
+    			return "redirect:/main";
     		}else {
     			model.addAttribute("error", "Invalid password.");
     		}
     	}else {
     		model.addAttribute("error", "Username not found.");
     	}
- 	return "index";
+ 	return "redirect:/index";
     }
 	@GetMapping("/")
 	public String greeting(Model model, HttpSession session) {
 	model.addAttribute("message", "hello world");
 	session.invalidate();
 	return "index";
-	}
-	@GetMapping("/cardbuilder")
-	public String build(Model model) {
-	model.addAttribute("message", "hello world");
-	return "cardbuilder";
-	}
-	@GetMapping("/ownCards")
-	public String ownCards(Model model) {
-	model.addAttribute("message", "hello world");
-	return "ownCards";
 	}
     @GetMapping("/main")
 	public String main(Model model) {
@@ -140,11 +134,23 @@ public class WebController {
     public List<Map<String, Object>> listImageMetadata() {
         return imgService.getAllData().stream().map(img -> {
             Map<String, Object> map = new HashMap<>();
-            map.put("id", img.getImage_id());
+            map.put("id", img.getId());
             map.put("name", img.getName());
             map.put("content_type", img.getContent_type());
             return map;
         }).toList();
+    }
+
+    @GetMapping("/ownCards")
+    public String getCards(Model model) {
+        List<Card> cards = cardService.getAllData();
+        System.out.println("Cards found: " + cards.size()); // Debug
+        for (Card c : cards) {
+            System.out.println("Card: " + c.getName());
+        }
+        model.addAttribute("cards", cards);
+        
+        return "ownCards";
     }
     
     // Return JSON list of image metadata
@@ -216,96 +222,125 @@ public class WebController {
             .body(img.getImage());
     }
     
-    @PostMapping("/submit-card")
-    public String submitCard(
-            @RequestParam String name,
-            @RequestParam String type,
-            @RequestParam String desc,
-            @RequestParam String arch,
-            @RequestParam String attr,
-            @RequestParam int atk,
-            @RequestParam int def,
-            @RequestParam int lvl,
-            @RequestParam String race,
-            @RequestParam String ftype,
-            @RequestParam(value = "card-image", required = false) MultipartFile imageFile,
-            @RequestParam String image,
-            HttpSession session
-    ) throws SQLException, IOException {
-
-        // Don't proceed if the card already exists
-        if (cardService.getByName(name) != null) {
-            return "card"; // Card already exists; skip insertion
-        }
-
-        // Archetype
-        Archetype archetype = archService.getByName(arch);
-        System.out.println(archService.getByName(arch));
-        if (archetype == null) {
-            archetype = new Archetype(arch);
-            archService.insert(archetype);
-        }
-
-        // Card Type
-        Card_Type cardType = typeService.getByName(type);
-        if (cardType == null) {
-            cardType = new Card_Type(type);
-            typeService.insert(cardType);
-        }
-
-        // Attribute
-        Attribute attrr = attrService.getByName(attr);
-        if (attrr == null) {
-            attrr = new Attribute(attr);
-            attrService.insert(attrr);
-        }
-
-        // Frame Type
-        FrameType frameType = ftypeService.getByName(ftype);
-        if (frameType == null) {
-            frameType = new FrameType(ftype);
-            ftypeService.insert(frameType);
-        }
-
-        // Race
-        Race cardRace = raceService.getByRace(race);
-        if (cardRace == null) {
-            cardRace = new Race(race);
-            raceService.insert(cardRace);
-        }
+    // Return image binary data
+    @PostMapping("/deleteCard/{id}")
+    public ResponseEntity<Void> deletCard(@PathVariable int id) {
+        Card card = cardService.getByID(id);
+        if (card == null) return ResponseEntity.notFound().build();
         
-        // User
-        User user = (User) session.getAttribute("loggedInUser");
-
-        // Card Image
-        Card_image cardImage = imgService.getByName(image);
-        if (cardImage == null && imageFile != null && !imageFile.isEmpty()) {
-            cardImage = new Card_image();
-            cardImage.setName(image);
-            cardImage.setImage(imageFile.getBytes());
-            cardImage.setContent_type(imageFile.getContentType());
-            imgService.insert(cardImage);
-        }
-
-        // Create and insert the new card
-        Card card = new Card();
-        card.setName(name);
-        card.setDescription(desc);
-        card.setAttack(atk);
-        card.setDefense(def);
-        card.setLevel(lvl);
-        card.setArchetype(archetype);
-        card.setCard_type(cardType);
-        card.setAttribute(attrr);
-        card.setFrame_type(frameType);
-        card.setRace(cardRace);
-        card.setImage(cardImage);
-        card.setUser(user);
-
-        cardService.insert(card);
-
-        return "card";
+        cardService.delete(id);
+        
+        return ResponseEntity.noContent().build();
     }
+	@GetMapping("/cardbuilder")
+	public String build(Model model, @RequestParam(required = false) Integer id) {
+	    if (id != null) {
+	        Card card = cardService.getByID(id);
+	        model.addAttribute("card", card);
+	    } else {
+	        model.addAttribute("card", new Card());
+	    }
+	return "cardbuilder";
+	}
+	@PostMapping("/submit-card")
+	public String submitCard(        @RequestParam String name,
+	        @RequestParam String desc,
+	        @RequestParam int atk,
+	        @RequestParam int def,
+	        @RequestParam int lvl,
+	        @RequestParam String arch,
+	        @RequestParam String type,
+	        @RequestParam String attr,
+	        @RequestParam String race,
+	        @RequestParam String ftype,
+	        @RequestParam(value = "card-image", required = false) MultipartFile imageFile,
+	        @RequestParam String image,
+	        @RequestParam(required = false) Integer id,
+	        HttpSession session) throws IOException, SQLException {
+
+		Card card;
+		if (id != null) {
+		    card = cardService.getByID(id);
+		    if (card == null) {
+		        // Fallback if the card doesn't exist — prevent insert
+		        return "redirect:/card?error=CardNotFound";
+		    }
+		} else {
+		    card = new Card();
+		}
+		
+	    User userr = (User) session.getAttribute("loggedInUser");
+	    if (userr == null) {
+	        return "redirect:/login";
+	    }
+	    card.setName(name);
+	    card.setDescription(desc);
+	    card.setAttack(atk);
+	    card.setDefense(def);
+	    card.setLevel(lvl);
+	    // Handle Archetype
+	    Archetype archetype = archService.getByName(arch);
+	    if (archetype == null) {
+	        archetype = new Archetype(arch);
+	        archService.insert(archetype);
+	    }
+	    card.setArchetype(archetype);
+
+	    // Handle Card Type
+	    Card_Type cardType = typeService.getByName(type);
+	    if (cardType == null) {
+	        cardType = new Card_Type(type);
+	        typeService.insert(cardType);
+	    }
+	    card.setCard_type(cardType);
+
+	    // Handle Attribute
+	    Attribute attrr = attrService.getByName(attr);
+	    if (attrr == null) {
+	        attrr = new Attribute(attr);
+	        attrService.insert(attrr);
+	    }
+	    card.setAttribute(attrr);
+
+	    // Handle Race
+	    Race cardRace = raceService.getByRace(race);
+	    if (cardRace == null) {
+	        cardRace = new Race(race);
+	        raceService.insert(cardRace);
+	    }
+	    card.setRace(cardRace);
+
+	    // Handle FrameType
+	    FrameType frameType = ftypeService.getByName(ftype);
+	    if (frameType == null) {
+	        frameType = new FrameType(ftype);
+	        ftypeService.insert(frameType);
+	    }
+	    card.setFrame_type(frameType);
+
+	    // Handle User
+	    User user = service.getByID(userr.getUser_id());
+	    card.setUser(user);
+
+	    // Handle Card Image
+	    Card_image cardImage = imgService.getByName(image);
+	    if (cardImage == null && imageFile != null && !imageFile.isEmpty()) {
+	        cardImage = new Card_image();
+	        cardImage.setName(image);
+	        cardImage.setImage(imageFile.getBytes());
+	        cardImage.setContent_type(imageFile.getContentType());
+	        imgService.insert(cardImage);
+	    }
+	    card.setImage(cardImage);
+	    if (id != null) {
+	        cardService.update(card, id);
+	    } else {
+	        cardService.insert(card);
+	    }
+
+	    return "redirect:/card";
+	}
+
 
 }
 
