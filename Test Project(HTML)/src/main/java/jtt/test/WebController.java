@@ -9,6 +9,8 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -21,6 +23,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -155,7 +158,13 @@ public class WebController {
         
         return "ownCards";
     }
-    
+    @GetMapping("/allCards")
+    public String getAllCards(Model model, HttpSession session) throws SQLException {
+    	User user = (User) session.getAttribute("loggedInUser");
+        model.addAttribute("user", user);
+        
+        return "allCards";
+    }
     // Return JSON list of image metadata
     @GetMapping("/type/list")
     @ResponseBody
@@ -352,6 +361,18 @@ public class WebController {
 	        imgService.insert(cardImage);
 	    }
 	    card.setImage(cardImage);
+	    
+	    System.out.println("Name: " + name);
+	    System.out.println("ATK: " + atk);
+	    System.out.println("DEF: " + def);
+	    System.out.println("Level: " + lvl);
+	    System.out.println("Archetype: " + arch);
+	    System.out.println("Type: " + type);
+	    System.out.println("Attr: " + attr);
+	    System.out.println("Race: " + race);
+	    System.out.println("Ftype: " + ftype);
+	    System.out.println("Image: " + image);
+	    System.out.println("Image file: " + (imageFile != null ? imageFile.getOriginalFilename() : "null"));
 	    if (id != null && id != 0) {
 	        cardService.update(card, id);
 	    } else {
@@ -361,6 +382,13 @@ public class WebController {
 	    return "redirect:/card";
 	}
 
-
+	@GetMapping("/proxy-image")
+	public ResponseEntity<byte[]> proxyImage(@RequestParam String url) throws IOException {
+	    RestTemplate restTemplate = new RestTemplate();
+	    ResponseEntity<byte[]> response = restTemplate.getForEntity(url, byte[].class);
+	    HttpHeaders headers = new HttpHeaders();
+	    headers.setContentType(MediaType.IMAGE_JPEG); // or dynamic based on content-type
+	    return new ResponseEntity<>(response.getBody(), headers, HttpStatus.OK);
+	}
 }
 

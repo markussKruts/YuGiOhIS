@@ -205,7 +205,7 @@
 	  </select>
       <input type="text" id="ftype" name="ftype" placeholder="Or enter a new frametype"th:value="${card.frame_type?.name}">
 
-      <button type="submit" class="submit-btn">Create Card</button>
+      <button type="submit" class="submit-btn" id="submit-btn">Create Card</button>
     </div>
 
     <div class="column" style="flex:1;">
@@ -228,7 +228,16 @@
 <a href="/card"><button>Back to Menu</button></a>
 </div>
   <script>
+const button = document.getElementById('submit-btn');
 
+// Get URL parameters
+const params = new URLSearchParams(window.location.search);
+
+// Check if "cardId" (or whatever your param name is) exists
+if (params.has('id')) {
+  // Change button text if cardId exists
+  button.textContent = 'Update card';
+}
 	document.getElementById("card-image").addEventListener("change", () => {
 	  document.getElementById("image_select").selectedIndex = 0;
 	});
@@ -316,7 +325,6 @@
       const placeholder = document.createElement('option');
       placeholder.textContent = '-- Select an option --';
       placeholder.value = ''; // empty value for placeholder
-      placeholder.disabled = true;
       select.appendChild(placeholder);
 
       // Add options
@@ -329,7 +337,12 @@
 
       // Sync input field when changed
       select.addEventListener('change', () => {
+		    if (select.value === '') {
+    // Placeholder selected - clear the input
+    input.value = '';
+  } else {
         input.value = select.options[select.selectedIndex].textContent;
+        }
       });
     };
 

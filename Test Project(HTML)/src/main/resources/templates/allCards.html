@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Yu-Gi-Oh! Cards</title>
+  <style>
+    body {
+      background-image: url(/img/bg.jpg);
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    h1 {
+      font-weight: bold;
+      color: red;
+      font-size: 55px;
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .container {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 20px;
+      gap: 30px;
+    }
+
+    .card-list {
+      background-color: rgba(255, 255, 255, 0.6);
+      padding: 20px;
+      border-radius: 12px;
+      width: 600px;
+      max-height: 500px;
+      overflow-y: auto;
+    }
+.search-container {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin: 20px auto;
+  width: 600px;
+  height: 75px;
+}
+
+#searchBar {
+  flex: 1;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+}
+    .card-item {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 15px;
+      padding: 10px;
+      background-color: #f0f0f0;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+
+    .card-item:hover {
+      transform: scale(1.05);
+    }
+
+    .card-item img {
+      width: 80px;
+      height: auto;
+      border-radius: 4px;
+    }
+
+    .card-info {
+      flex-grow: 1;
+    }
+
+    .buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    button {
+      cursor: pointer;
+      width: 200px;
+      height: 60px;
+      background-color: #28a745;
+      border: none;
+      border-radius: 8px;
+      font-size: 1.2rem;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+
+    button:hover {
+      background-color: #218838;
+      transform: scale(1.05);
+    }
+
+    img.logo {
+      display: block;
+      margin: 20px auto;
+      width: 300px;
+    }
+
+    /* New styles for search bar */
+    #searchBar {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+      box-sizing: border-box;
+    }
+  </style>
+</head>
+
+<body>
+  <img src="/img/yugioh.png" alt="Logo" class="logo">
+  <h1>Card Options!!!</h1>
+  <form id="cardForm" method="POST" action="/submit-card">
+  <input type="hidden" name="name" />
+  <input type="hidden" name="desc" />
+  <input type="hidden" name="atk" />
+  <input type="hidden" name="def" />
+  <input type="hidden" name="lvl" />
+  <input type="hidden" name="arch" />
+  <input type="hidden" name="type" />
+  <input type="hidden" name="attr" />
+  <input type="hidden" name="race" />
+  <input type="hidden" name="ftype" />
+  <input type="hidden" name="image" />
+</form>
+  <div class="search-container">
+    <input type="text" id="searchBar" placeholder="Search cards by name or description...">
+    <button id="searchBtn">Search</button>
+    </div>
+  <div class="container">
+    <div class="card-list">
+      <div th:each="card : ${cards}" class="card-item" onclick="selectCard(this)" th:data-cardid="${card.id}">
+        <img th:src="@{'/frame-image/' + ${card.image.id}}" alt="Card image">
+        <div class="card-info">
+          <b th:text="${card.name}">Card Name</b><br>
+          <span th:text="'ATK/' + ${card.attack} + ' DEF/' + ${card.defense}">ATK/DEF</span><br>
+          <span th:text="'Description:' + ${card.description}">Description</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Buttons on the right -->
+    <div class="buttons">
+      <button onclick="saveCard()">Save Selected</button>
+      <button onclick="goBack()">Back</button>
+    </div>
+  </div>
+
+  <script>
+    let selectedCardId = null;
+
+function selectCard(el, cardData) {
+  document.querySelectorAll('.card-item').forEach(item => item.style.border = 'none');
+  el.style.border = '2px solid red';
+  selectedCardData = cardData;
+  console.log("Selected card id:", selectedCardId);
+}
+
+async function saveCard() {
+  if (!selectedCardData) {
+    alert("Please select a card first.");
+    return;
+  }
+
+  try {
+const proxyUrl = '/proxy-image?url=' + encodeURIComponent(selectedCardData.card_images[0].image_url);
+const response = await fetch(proxyUrl);
+const blob = await response.blob();
+
+    // Create a FormData object
+    const formData = new FormData();
+    formData.append("name", selectedCardData.name || "Unknown");
+    formData.append("desc", selectedCardData.desc || "No description");
+    formData.append("atk", selectedCardData.atk || 0);
+    formData.append("def", selectedCardData.def || 0);
+    formData.append("lvl", selectedCardData.level || 0);
+    formData.append("arch", selectedCardData.archetype?.name || "Generic");
+    formData.append("type", selectedCardData.type || "Monster");
+    formData.append("attr", selectedCardData.attribute || "DARK");
+    formData.append("race", selectedCardData.race || "Spellcaster");
+    formData.append("ftype", "Effect"); // you can infer this if needed
+    formData.append("image", selectedCardData.name + ".jpg");
+  
+
+    // Convert image URL to blob & append as MultipartFile
+    const file = new File([blob], selectedCardData.name + ".jpg", {
+      type: blob.type,
+    });
+    formData.append("card-image", file);
+
+    // Submit to Spring backend
+    const result = await fetch("/submit-card", {
+      method: "POST",
+      body: formData,
+    });
+
+    if (result.ok) {
+      alert("Card saved successfully!");
+      window.location.href = "/card";
+    } else {
+      throw new Error("Failed to save card.");
+    }
+  } catch (err) {
+    console.error(err);
+    alert("Error saving card: " + err.message);
+  }
+}
+
+    function goBack() {
+      window.location.href = '/card';
+    }
+
+const searchBar = document.getElementById('searchBar');
+const searchBtn = document.getElementById('searchBtn');
+const cardList = document.querySelector('.card-list');
+searchBtn.addEventListener('click', () => {
+  const query = searchBar.value.trim();
+  if (!query) return alert('Please enter a search term.');
+
+  fetchCards(query);
+});
+
+async function fetchCards(name) {
+  // Clear previous cards
+  cardList.innerHTML = '';
+
+  try {
+	  
+    const response = await fetch(`https://db.ygoprodeck.com/api/v7/cardinfo.php?fname=${encodeURIComponent(name)}`);
+    if (!response.ok) throw new Error('Failed to fetch cards');
+
+    const data = await response.json();
+
+    if (!data.data || data.data.length === 0) {
+      cardList.innerHTML = '<p>No cards found.</p>';
+      return;
+    }
+
+    const maxCards = 20; // Limit to 20 cards
+    const limitedCards = data.data.slice(0, maxCards);
+
+    limitedCards.forEach(card => {
+      const cardItem = document.createElement('div');
+      cardItem.className = 'card-item';
+      cardItem.setAttribute('data-cardid', card.id);
+      cardItem.onclick = () => selectCard(cardItem, card);
+
+      const img = document.createElement('img');
+      img.src = card.card_images?.[0]?.image_url_small || '';
+      img.alt = card.name;
+
+      const info = document.createElement('div');
+      info.className = 'card-info';
+
+      const nameEl = document.createElement('b');
+      nameEl.textContent = card.name;
+
+      const stats = document.createElement('span');
+      stats.textContent = `ATK/${card.atk || 'N/A'} DEF/${card.def || 'N/A'}`;
+      stats.style.display = 'block';
+
+      const desc = document.createElement('span');
+      desc.textContent = `Description: ${card.desc || 'No description'}`;
+      desc.style.display = 'block';
+
+      info.appendChild(nameEl);
+      info.appendChild(stats);
+      info.appendChild(desc);
+
+      cardItem.appendChild(img);
+      cardItem.appendChild(info);
+
+      cardList.appendChild(cardItem);
+    });
+
+    // Optional: show a note if results were limited
+    if (data.data.length > maxCards) {
+      const note = document.createElement('p');
+      note.textContent = `Showing first ${maxCards} results out of ${data.data.length}. Please refine your search.`;
+      note.style.fontStyle = 'italic';
+      cardList.appendChild(note);
+    }
+
+  } catch (err) {
+    console.error(err);
+    cardList.innerHTML = `<p>Error fetching cards: ${err.message}</p>`;
+  }
+}
+
+  </script>
+</body>
+</html>

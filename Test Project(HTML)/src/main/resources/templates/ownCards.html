@@ -78,7 +78,22 @@
       font-size: 1.2rem;
       transition: background-color 0.3s ease, transform 0.2s ease;
     }
+.search-container {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin: 20px auto;
+  width: 600px;
+  height: 75px;
+}
 
+#searchBar {
+  flex: 1;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+}
     button:hover {
       background-color: #218838;
       transform: scale(1.05);
@@ -89,15 +104,26 @@
       margin: 20px auto;
       width: 300px;
     }
+        /* New styles for search bar */
+    #searchBar {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+      box-sizing: border-box;
+    }
   </style>
 </head>
 
 <body>
   <img src="/img/yugioh.png" alt="Logo" class="logo">
   <h1>Card Options!!!</h1>
-
+  <div class="search-container">
+    <input type="text" id="searchBar" placeholder="Search cards by name or description...">
+    </div>
   <div class="container">
-
 	<!-- Card List -->
 	   <div class="card-list">
 	     <div th:each="card : ${cards}" class="card-item" onclick="selectCard(this)" th:data-cardid="${card.id}">
@@ -160,6 +186,26 @@
 	function goBack() {
 	  window.location.href = '/card';
 	}
+
+    // Search/filter functionality
+    const searchBar = document.getElementById('searchBar');
+    searchBar.addEventListener('input', () => {
+      const query = searchBar.value.toLowerCase();
+      const cards = document.querySelectorAll('.card-item');
+
+      cards.forEach(card => {
+        // Get card name and description text content
+        const name = card.querySelector('.card-info b').textContent.toLowerCase();
+        const description = card.querySelector('.card-info span:nth-of-type(2)').textContent.toLowerCase();
+
+        // Show card if name or description includes search query, else hide it
+        if (name.includes(query) || description.includes(query)) {
+          card.style.display = 'flex';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    });
   </script>
 </body>
 </html>
