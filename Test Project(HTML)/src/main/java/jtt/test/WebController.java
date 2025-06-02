@@ -83,7 +83,28 @@ public class WebController {
 	model.addAttribute("message", "signup");
 	return "signup";
     }
-    
+    @GetMapping("/proxy-random")
+    public ResponseEntity<?> getRandomCard() {
+        try {
+            RestTemplate restTemplate = new RestTemplate();
+            String url = "https://db.ygoprodeck.com/api/v7/randomcard.php";
+
+            ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
+
+            if (response.getStatusCode().is2xxSuccessful()) {
+                return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(response.getBody());
+            } else {
+                return ResponseEntity.status(response.getStatusCode()).body("Failed to fetch card.");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace(); // ✅ See logs in your console
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"error\":\"" + e.getMessage() + "\"}");
+        }
+    }
+
     @PostMapping("/submit")
  	public String signup(@RequestParam String username, @RequestParam String email, @RequestParam String name, @RequestParam String password, Model model, HttpSession session) {
     	if(service.getByUsername(username) != null) {
@@ -164,6 +185,13 @@ public class WebController {
         model.addAttribute("user", user);
         
         return "allCards";
+    }
+    @GetMapping("/smash")
+    public String smash(Model model, HttpSession session) throws SQLException {
+    	User user = (User) session.getAttribute("loggedInUser");
+        model.addAttribute("user", user);
+        
+        return "smash";
     }
     // Return JSON list of image metadata
     @GetMapping("/type/list")

@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Yu-Gi-Oh! Card Viewer</title>
+  <style>
+    body {
+      background-image: url(/img/bg.jpg);
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    h1 {
+      font-weight: bold;
+      color: red;
+      font-size: 55px;
+      text-align: center;
+      margin-top: 20px;
+    }
+	b {
+	  font-weight: bold;
+	  color: red;
+	  text-align: center;
+	  margin-top: 20px;
+	}
+    img.logo {
+      display: block;
+      margin: 20px auto;
+      width: 300px;
+    }
+
+    .main-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 30px;
+      padding: 20px;
+    }
+
+    .viewer {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: rgba(255,255,255,0.6);
+      padding: 20px;
+      border-radius: 12px;
+    }
+
+    .viewer button {
+      width: 100px;
+      height: 100px;
+      margin: 0 20px;
+      font-size: 1rem;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      transition: transform 0.2s ease, background-color 0.3s ease;
+    }
+
+    .viewer button:hover {
+      background-color: #0056b3;
+      transform: scale(1.05);
+    }
+
+    .card-display {
+      width: 300px;
+      height: auto;
+      max-height: 450px;
+      border: 4px solid red;
+      border-radius: 12px;
+      background-color: white;
+      overflow: hidden;
+    }
+
+    .card-display img {
+      width: 100%;
+      height: auto;
+    }
+
+    .action-buttons {
+      margin-top: 20px;
+      display: flex;
+      gap: 30px;
+    }
+
+    .action-buttons button {
+      width: 200px;
+      height: 60px;
+      font-size: 1.2rem;
+      background-color: #28a745;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+
+    .action-buttons button:hover {
+      background-color: #218838;
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+<body>
+  <img src="/img/yugioh.png" alt="Logo" class="logo">
+  <h1>Card Viewer</h1>
+
+  <div class="main-container">
+	<b>it takes a second to load card btw</b>
+	<div class="viewer">
+	  <button onclick="prevCard()">Prev</button>
+	  <div class="card-display">
+	    <img id="selectedCardImage" src="/img/placeholder.jpg" alt="Selected Card">
+	  </div>
+	  <button onclick="nextCard()">Pass</button>
+	</div>
+
+	<div class="action-buttons">
+	  <button onclick="saveCard()">Smash(Save)</button>
+	  <button onclick="goBack()">Back</button>
+	</div>
+	
+  </div>
+
+  <script>
+    let currentCardIndex = 0;
+    let cards = [];
+    let selectedCardData = null;
+
+    const cardImageEl = document.getElementById('selectedCardImage');
+
+    function updateCardDisplay() {
+      if (!cards.length) return;
+
+      const card = cards[currentCardIndex];
+      selectedCardData = card;
+	  console.log("Updating display with:", card.name, card.card_images?.[0]?.image_url);
+      cardImageEl.src = card.card_images?.[0]?.image_url || '/img/placeholder.jpg';
+      cardImageEl.alt = card.name || "Selected Card";
+    }
+
+	function prevCard() {
+	  if (currentCardIndex > 0) {
+	    currentCardIndex--;
+	    selectedCardData = cards[currentCardIndex];
+	    updateCardDisplay();
+	  } else {
+	    alert("You're at the first card!");
+	  }
+	}
+
+
+	async function nextCard() {
+	  if (currentCardIndex < cards.length - 1) {
+	    currentCardIndex++;
+	    updateCardDisplay();
+	    return;
+	  }
+
+	  try {
+	    const response = await fetch('/proxy-random');
+	    const json = await response.json();
+	    const card = json.data?.[0];
+
+	    if (!card) {
+	      console.error("No card found in response:", json);
+	      return;
+	    }
+
+	    cards.push(card);
+	    currentCardIndex++;
+	    selectedCardData = card;
+	    updateCardDisplay();
+	  } catch (err) {
+	    console.error('Error loading next random card:', err);
+	  }
+	}
+
+
+    function goBack() {
+      window.location.href = '/card';
+    }
+
+	window.addEventListener('DOMContentLoaded', async () => {
+	  try {
+	    const response = await fetch('/proxy-random');
+		const json = await response.json();
+		const card = json.data?.[0];
+		if (!card) {
+		  console.error("No card found in response:", json);
+		  return;
+		}
+
+		cards = [card];
+		currentCardIndex = 0;
+		selectedCardData = card;
+		updateCardDisplay();
+	  } catch (err) {
+	    console.error('Error loading random card:', err);
+	  }
+	});
+	async function saveCard() {
+	  if (!selectedCardData) {
+	    alert("Please select a card first.");
+	    return;
+	  }
+
+	  try {
+	const proxyUrl = '/proxy-image?url=' + encodeURIComponent(selectedCardData.card_images[0].image_url);
+	const response = await fetch(proxyUrl);
+	const blob = await response.blob();
+
+	    // Create a FormData object
+	    const formData = new FormData();
+	    formData.append("name", selectedCardData.name || "Unknown");
+	    formData.append("desc", selectedCardData.desc || "No description");
+	    formData.append("atk", selectedCardData.atk || 0);
+	    formData.append("def", selectedCardData.def || 0);
+	    formData.append("lvl", selectedCardData.level || 0);
+	    formData.append("arch", selectedCardData.archetype?.name || "Generic");
+	    formData.append("type", selectedCardData.type || "Monster");
+	    formData.append("attr", selectedCardData.attribute || "DARK");
+	    formData.append("race", selectedCardData.race || "Spellcaster");
+	    formData.append("ftype", "Effect"); // you can infer this if needed
+	    formData.append("image", selectedCardData.name + ".jpg");
+	  
+
+	    // Convert image URL to blob & append as MultipartFile
+	    const file = new File([blob], selectedCardData.name + ".jpg", {
+	      type: blob.type,
+	    });
+	    formData.append("card-image", file);
+
+	    // Submit to Spring backend
+	    const result = await fetch("/submit-card", {
+	      method: "POST",
+	      body: formData,
+	    });
+
+	    if (result.ok) {
+	      alert("Card saved successfully!");
+	      window.location.href = "/card";
+	    } else {
+	      throw new Error("Failed to save card.");
+	    }
+	  } catch (err) {
+	    console.error(err);
+	    alert("Error saving card: " + err.message);
+	  }
+	}
+  </script>
+
+</body>
+</html>

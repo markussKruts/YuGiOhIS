@@ -99,21 +99,26 @@
       margin-top: 20px;
       background-color: #007bff;
     }
+	img.logo {
+	  display: block;
+	  margin: 20px auto;
+	  width: 300px;
+	}
 #drop-area {
   border: 2px dashed #ccc;
   border-radius: 8px;
   padding: 10px;
   text-align: center;
   cursor: pointer;
-  min-height: 400px;      /* Increased height for bigger image */
+  min-height: 400px;
   width: 200px;
-  height: 300px;           /* Fixed width for consistent sizing */
+  height: 300px;
   display: flex;
   flex-direction: column;
   justify-content: center;
   color: #666;
   transition: border-color 0.3s ease;
-  margin: 0 auto;         /* Center the drop area horizontally */
+  margin: 0 auto;
 }
 #drop-area * {
   pointer-events: none;
@@ -154,7 +159,7 @@
 }
 </script>
 	
-  <a><img src="/img/yugioh.png" alt="Yu-Gi-Oh! Logo"></a>
+  <img src="/img/yugioh.png" alt="Logo" class="logo">
  <h1>Card Builder</h1>
  <input type="hidden" name="id" th:value="${card.id}">
 <form action="/submit-card" method="post" enctype="multipart/form-data">
