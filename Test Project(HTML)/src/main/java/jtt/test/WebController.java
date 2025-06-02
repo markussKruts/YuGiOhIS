@@ -100,11 +100,10 @@ public class WebController {
             }
 
         } catch (Exception e) {
-            e.printStackTrace(); // ✅ See logs in your console
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"error\":\"" + e.getMessage() + "\"}");
         }
     }
-
     @PostMapping("/submit")
  	public String signup(@RequestParam String username, @RequestParam String email, @RequestParam String name, @RequestParam String password, Model model, HttpSession session) {
     	if(service.getByUsername(username) != null) {

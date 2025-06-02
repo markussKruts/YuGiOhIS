@@ -211,7 +211,7 @@
 	const response = await fetch(proxyUrl);
 	const blob = await response.blob();
 
-	    // Create a FormData object
+	    // Create a FormData objects
 	    const formData = new FormData();
 	    formData.append("name", selectedCardData.name || "Unknown");
 	    formData.append("desc", selectedCardData.desc || "No description");
