@@ -147,16 +147,18 @@
   </style>
 </head>
 <body>
-  <script th:inline="javascript">
-    /*<![CDATA[*/
-    const set = [[${setJson}]];
-    /*]]>*/
-  </script>
+	<script th:inline="javascript">
+	  /*<![CDATA[*/
+	  const set = JSON.parse('[[${setJson}]]');
+	  console.log(set);
+	  /*]]>*/
+	</script>
+
 
   <img src="/img/yugioh.png" alt="Logo" class="logo" />
-  <h1>Card Builder</h1>
-  <input type="hidden" name="id" th:value="${set.id}" />
+  <h1>Set Builder</h1>
   <form action="/submit-set" method="post" enctype="multipart/form-data">
+	<input type="hidden" name="id" th:value="${set.id}" />
 <input type="hidden" name="card_id">
 <input type="hidden" name="rarity_id">
     <div class="form-columns" style="display: flex; gap: 40px;">
@@ -233,18 +235,14 @@
     <a href="/set"><button>Back to Menu</button></a>
   </div>
   <script>
-    // Your existing script content remains unchanged, plus:
-
     const cardSelect = document.getElementById('card_select');
     const raritySelect = document.getElementById('rarity');
     const cardListElem = document.getElementById('card-list');
     const addBtn = document.getElementById('add');
     const removeBtn = document.getElementById('remove');
 
-    // Array to hold cards added to set [{ id, name, rarity }]
     let cardsInSet = [];
 
-    // Function to render the card list visually
     function renderCardList() {
       cardListElem.innerHTML = '';
       cardsInSet.forEach((card, index) => {
@@ -310,15 +308,13 @@
       }
       hiddenInput.value = JSON.stringify(cardsInSet);
     });
-const button = document.getElementById('submit-btn');
+const button = document.getElementById('submit-set-btn');
 
 // Get URL parameters
 const params = new URLSearchParams(window.location.search);
 
-// Check if "cardId" (or whatever your param name is) exists
 if (params.has('id')) {
-  // Change button text if cardId exists
-  button.textContent = 'Update card';
+  button.textContent = 'Update set';
 }
 	document.getElementById("set-image").addEventListener("change", () => {
 	  document.getElementById("image_select").selectedIndex = 0;
@@ -327,6 +323,7 @@ if (params.has('id')) {
 	document.getElementById("image_select").addEventListener("change", () => {
 	  document.getElementById("set-image").value = "";
 	});
+	
   const dropArea = document.getElementById('drop-area');
   const fileInput = document.getElementById('set-image');
   const preview = document.getElementById('preview');
@@ -390,90 +387,88 @@ if (params.has('id')) {
       { url: '/card/list', selectId: 'card_select' },
     ];
 
-const populateSelect = async ({ url, selectId }) => {
-  const response = await fetch(url);
-  const data = await response.json();
-  const select = document.getElementById(selectId);
-  const input = document.getElementById(selectId.replace('_select', ''));
+    const populateSelect = async ({ url, selectId }) => {
+      const response = await fetch(url);
+      const data = await response.json();
+      const select = document.getElementById(selectId);
+      const input = document.getElementById(selectId.replace('_select', ''));
 
-  select.innerHTML = '';
+      select.innerHTML = '';
 
-  const placeholder = document.createElement('option');
-  placeholder.textContent = '-- Select an option --';
-  placeholder.value = '';
-  select.appendChild(placeholder);
+      const placeholder = document.createElement('option');
+      placeholder.textContent = '-- Select an option --';
+      placeholder.value = '';
+      select.appendChild(placeholder);
 
-  data.forEach(item => {
-    const option = document.createElement('option');
-    option.value = item.id;
+      data.forEach(item => {
+        const option = document.createElement('option');
+        option.value = item.id;
+        option.textContent = item.name || "Unknown";
+        select.appendChild(option);
+      });
 
-    // Show card names in card_select and image names in image_select
-    option.textContent = item.name || "Unknown";
-
-
-    select.appendChild(option);
-  });
-
-  select.addEventListener('change', () => {
-    if (select.value === '') {
-      input.value = '';
-    } else {
-      input.value = select.options[select.selectedIndex].textContent;
-    }
-  });
-};
-
+      select.addEventListener('change', () => {
+        if (select.value === '') {
+          input.value = '';
+        } else {
+          input.value = select.options[select.selectedIndex].textContent;
+        }
+      });
+    };
 
     await Promise.all(fetchConfigs.map(populateSelect));
 
-	setSelectValueById('image_select', card.image?.image_id);
+    const setSelectValueById = (selectId, id) => {
+      const select = document.getElementById(selectId);
+      if (!select) return;
 
-    // Helper to select option by id or fallback to placeholder
-	const setSelectValueById = (selectId, id) => {
-	  const select = document.getElementById(selectId);
-	  if (!select) return;
+      let foundIndex = 0;
+      if (id != null) {
+        for (let i = 1; i < select.options.length; i++) {
+          if (select.options[i].value == id) {
+            foundIndex = i;
+            break;
+          }
+        }
+      }
+      select.selectedIndex = foundIndex;
 
-	  // Default to placeholder (index 0)
-	  let foundIndex = 0;
+      const input = document.getElementById(selectId.replace('_select', ''));
+      if (input) {
+        input.value = foundIndex === 0 ? '' : select.options[foundIndex].textContent;
+      }
+    };
 
-	  if (id != null) {
-	    for (let i = 1; i < select.options.length; i++) {
-	      if (select.options[i].value == id) {
-	        foundIndex = i;
-	        break;
-	      }
-	    }
-	  }
+    if (set && set.id && set.id !== 0) {
+      const fields = ['name', 'set_code', 'image'];
+      fields.forEach(field => {
+        const el = document.getElementById(field);
+        if (el && set[field] != null) {
+          el.value = set[field];
+        }
+      });
 
-	  select.selectedIndex = foundIndex;
+      if (set.image?.id) {
+        const preview = document.getElementById('preview');
+        preview.src = "/frame-image/" + set.image.id;
+        preview.style.display = 'block';
+        document.getElementById('drop-text').style.display = 'none';
+        setSelectValueById('image_select', set.image.id);
+      }
 
-	  // Sync input field with selected option text ONLY if NOT placeholder
-	  const input = document.getElementById(selectId.replace('_select', ''));
-	  if (input) {
-	    if (foundIndex === 0) {
-	      input.value = ''; // Clear input if placeholder selected
-	    } else {
-	      input.value = select.options[foundIndex].textContent;
-	    }
-	  }
-	};
-    // Show image preview if image exists
-    if (card.image?.id) {
-      const preview = document.getElementById('preview');
-      preview.src = "/frame-image/" + set.image.id;
-      preview.style.display = 'block';
-      document.getElementById('drop-text').style.display = 'none';
+      const submitButton = document.getElementById('submit-set-btn');
+      if (submitButton) {
+        submitButton.textContent = 'Update Set';
+      }
     }
   };
 
-
-  // Fill other fields from card object if id != 0
-  if (card && card.id !== 0) {
+  if (set && set.id !== 0) {
     const fields = ['name', 'set_code', 'image'];
     fields.forEach(field => {
       const el = document.getElementById(field);
-      if (el && card[field] != null) {
-        el.value = card[field];
+      if (el && set[field] != null) {
+        el.value = set[field];
       }
     });
 	}

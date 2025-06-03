@@ -59,6 +59,11 @@ public class Card_setDAOImpl implements Card_setDAO{
 		System.out.println("Service cards count: " + Cards.size());
 		return Cards;
 	}
+
+	@Override
+	public void deleteBySetId(int setId) {
+		repository.deleteBySetId(setId);
+	}
 	
 	
 

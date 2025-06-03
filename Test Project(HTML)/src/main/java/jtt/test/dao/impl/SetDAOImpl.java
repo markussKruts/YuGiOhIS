@@ -45,6 +45,7 @@ public class SetDAOImpl implements SetDAO {
 	@Override
 	public Set getByID(int id) {
 		Set setData = setRepository.findById(id).get();
+		System.out.println("Fetched Set: " + setData.getName());
 		return setData;
 	}
 

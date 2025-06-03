@@ -207,6 +207,13 @@ public class WebController {
         
         return "allCards";
     }
+    @GetMapping("/allSets")
+    public String getAllSets(Model model, HttpSession session) throws SQLException {
+    	User user = (User) session.getAttribute("loggedInUser");
+        model.addAttribute("user", user);
+        
+        return "allSets";
+    }
     @GetMapping("/smash")
     public String smash(Model model, HttpSession session) throws SQLException {
     	User user = (User) session.getAttribute("loggedInUser");
@@ -303,7 +310,6 @@ public class WebController {
         }).toList();
     }
 
-    // Return image binary data
     @PostMapping("/deleteCard/{id}")
     public ResponseEntity<Void> deletCard(@PathVariable int id) {
         Card card = cardService.getByID(id);
@@ -313,14 +319,25 @@ public class WebController {
         
         return ResponseEntity.noContent().build();
     }
+    @PostMapping("/deleteSet/{id}")
+    public ResponseEntity<Void> deletSet(@PathVariable int id) {
+        Set set = setService.getByID(id);
+        if (set == null) return ResponseEntity.notFound().build();
+        
+        setService.delete(id);
+        
+        return ResponseEntity.noContent().build();
+    }
 	@GetMapping("/setbuilder")
 	public String setBuild(Model model, @RequestParam(required = false) Integer id) {
 	    if (id != null) {
 	        Set set = setService.getByID(id);
 	        model.addAttribute("set", set);
+	        System.err.println(set.getName());
 	        try {
 	            ObjectMapper objectMapper = new ObjectMapper();
 	            String setJson = objectMapper.writeValueAsString(set);
+	            System.err.println(setJson);
 	            model.addAttribute("setJson", setJson);
 	        } catch (Exception e) {
 	            model.addAttribute("setJson", "{}");
@@ -332,6 +349,7 @@ public class WebController {
 	        try {
 	            ObjectMapper objectMapper = new ObjectMapper();
 	            String setJson = objectMapper.writeValueAsString(set);
+	            System.err.println(setJson);
 	            model.addAttribute("setJson", setJson);
 	        } catch (Exception e) {
 	            model.addAttribute("setJson", "{}");
@@ -485,11 +503,20 @@ public class WebController {
 	        @RequestParam(value = "image-image", required = false) MultipartFile imageFile,
 	        @RequestParam(value = "image_select", required = false) Integer imageId,
 	        @RequestParam(value = "image", required = false) String imageName,
+	        @RequestParam(required = false) Integer id,
 	        HttpSession session
 	) throws SQLException, IOException {
-
-	    // Create and set basic info
-	    Set set = new Set();
+		Set set;
+		if (id != null && id != 0) {
+		    set = setService.getByID(id);
+		    if (set == null) {
+		        // Fallback if the card doesn't exist — prevent insert
+		        return "redirect:/card?error=CardNotFound";
+		    }
+		} else {
+		    set = new Set();
+		}
+		
 	    set.setName(name);
 	    set.setCode(setCode);
 	    User userr = (User) session.getAttribute("loggedInUser");
@@ -540,12 +567,22 @@ public class WebController {
 	        throw new IllegalArgumentException("Invalid card data format", e);
 	    }
 
-	    // Save Set and CardSets
-	    setService.insert(set);
-	    for (Card_set cs : cardSets) {
-	        cardSetService.insert(cs);
+	    if (id != null && id != 0) {
+	        setService.update(set, id);
+	        
+	        cardSetService.deleteBySetId(id);
+	        
+	        for (Card_set cs : cardSets) {
+	            cardSetService.insert(cs);
+	        }
+	    } else {
+	        setService.insert(set);
+	        
+	        for (Card_set cs : cardSets) {
+	            cardSetService.insert(cs);
+	        }
 	    }
-
+	    
 	    return "redirect:/set";
 	}
 

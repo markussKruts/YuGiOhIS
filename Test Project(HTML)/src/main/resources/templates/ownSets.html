@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8">
-  <title>Yu-Gi-Oh! Cards</title>
+  <title>Yu-Gi-Oh! Sets</title>
   <style>
     body {
       background-image: url(/img/bg.jpg);
@@ -27,7 +27,7 @@
       gap: 30px;
     }
 
-    .card-list {
+    .set-list {
       background-color: rgba(255, 255, 255, 0.6);
       padding: 20px;
       border-radius: 12px;
@@ -36,7 +36,7 @@
       overflow-y: auto;
     }
 
-    .card-item {
+    .set-item {
       display: flex;
       align-items: center;
       gap: 15px;
@@ -48,17 +48,17 @@
       transition: background-color 0.3s ease, transform 0.2s ease;
     }
 
-    .card-item:hover {
+    .set-item:hover {
       transform: scale(1.05);
     }
 
-    .card-item img {
+    .set-item img {
       width: 80px;
       height: auto;
       border-radius: 4px;
     }
 
-    .card-info {
+    .set-info {
       flex-grow: 1;
     }
 
@@ -119,14 +119,14 @@
 
 <body>
   <img src="/img/yugioh.png" alt="Logo" class="logo">
-  <h1>Card Options!!!</h1>
+  <h1>Set Options!!!</h1>
   <div class="search-container">
-    <input type="text" id="searchBar" placeholder="Search cards by name or description...">
+    <input type="text" id="searchBar" placeholder="Search sets by name or code...">
     </div>
   <div class="container">
 	<!-- Card List -->
 	   <div class="set-list">
-	     <div th:each="set : ${sets}" class="set-item" onclick="selectCard(this)" th:data-cardid="${set.id}">
+	     <div th:each="set : ${sets}" class="set-item" onclick="selectSet(this)" th:data-setid="${set.id}">
 	       <img th:src="@{'/frame-image/' + ${set.image.id}}" alt="Set image">
 	       <div class="set-info">
 	         <b th:text="${set.name}">Set Name</b><br>
@@ -156,7 +156,6 @@
 	    alert("Please select a set first.");
 	    return;
 	  }
-	  // Redirect to update page with selected card ID as param
 	 window.location.href = '/setbuilder?id=' + selectedSetId;
 	}
 
@@ -165,9 +164,7 @@
 	    alert("Please select a set first.");
 	    return;
 	  }
-	  // Confirm deletion
 	  if (confirm("Are you sure you want to delete this set?")) {
-	    // Call backend endpoint to delete the card (example: POST or GET)
 	    fetch('/deleteSet/' + selectedSetId, { method: 'POST' })
 		.then(response => {
 		  if (response.status === 204) {
@@ -185,18 +182,15 @@
 	  window.location.href = '/set';
 	}
 
-    // Search/filter functionality
     const searchBar = document.getElementById('searchBar');
     searchBar.addEventListener('input', () => {
       const query = searchBar.value.toLowerCase();
       const sets = document.querySelectorAll('.set-item');
 
       sets.forEach(card => {
-        // Get card name and description text content
-        const name = sets.querySelector('.sets-info b').textContent.toLowerCase();
-        const code = sets.querySelector('.sets-info span:nth-of-type(2)').textContent.toLowerCase();
+        const name = card.querySelector('.set-info b').textContent.toLowerCase();
+        const code = card.querySelector('.set-info span').textContent.toLowerCase();
 
-        // Show card if name or description includes search query, else hide it
         if (name.includes(query) || code.includes(query)) {
           card.style.display = 'flex';
         } else {
