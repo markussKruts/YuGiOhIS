@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Yu-Gi-Oh! Custom Deck Builder</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #111 url('/img/bg.jpg') no-repeat center center fixed;
+      background-size: cover;
+      color: #fff;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 50px;
+      color: #ff2a2a;
+    }
+
+    .deck-builder {
+      max-width: 1200px;
+      margin: auto;
+      padding: 30px;
+      background: rgba(0, 0, 0, 0.7);
+      border-radius: 10px;
+    }
+
+    .search-area, .deck-area {
+      margin-top: 20px;
+    }
+
+    .card-list, .deck-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .card {
+      background: #222;
+      border: 1px solid #444;
+      padding: 10px;
+      border-radius: 6px;
+      width: 180px;
+      text-align: center;
+    }
+
+    .card img {
+      width: 100%;
+      height: auto;
+      border-radius: 4px;
+    }
+
+    button {
+      padding: 8px 12px;
+      background: #007bff;
+      border: none;
+      border-radius: 4px;
+      color: white;
+      margin-top: 8px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #0056b3;
+    }
+
+    input[type="text"] {
+      width: 300px;
+      padding: 8px;
+      border-radius: 5px;
+      border: none;
+      margin-right: 10px;
+    }
+    
+     #searchBar {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+      box-sizing: border-box;
+    }
+    
+  </style>
+</head>
+<body>
+  <h1>Custom Deck Builder</h1>
+
+  <div class="deck-builder">
+
+    <!-- Search section -->
+    <div class="search-area">
+      <h2>Search Cards</h2>
+      <input type="text" id="searchInput" placeholder="Enter card name..." />
+      <button onclick="searchCards()">Search</button>
+      <div class="card-list" id="searchResults"></div>
+    </div>
+
+    <!-- Deck area -->
+    <div class="deck-area">
+      <h2>Your Deck (max 60 cards)</h2>
+      <div class="deck-list" id="deckList"></div>
+      <button onclick="submitDeck()">Save Deck</button>
+    </div>
+  </div>
+
+  <script>
+    let deck = [];
+
+    async function searchCards() {
+      const query = document.getElementById('searchInput').value;
+      if (!query) return;
+
+      // Sample fetch from your own created card API or from YGOPRODeck
+      const res = await fetch(`/api/cards/search?name=${query}`);
+      const cards = await res.json();
+
+      const resultsDiv = document.getElementById('searchResults');
+      resultsDiv.innerHTML = '';
+
+      cards.forEach(card => {
+        const div = document.createElement('div');
+        div.className = 'card';
+        div.innerHTML = `
+          <img src="/frame-image/${card.image?.id || 'default.jpg'}" alt="${card.name}">
+          <p><strong>${card.name}</strong></p>
+          <button onclick='addToDeck(${JSON.stringify(card)})'>Add to Deck</button>
+        `;
+        resultsDiv.appendChild(div);
+      });
+    }
+
+    function addToDeck(card) {
+      if (deck.length >= 60) {
+        alert("Maximum of 60 cards per deck.");
+        return;
+      }
+      deck.push(card);
+      renderDeck();
+    }
+
+    function removeFromDeck(index) {
+      deck.splice(index, 1);
+      renderDeck();
+    }
+
+    function renderDeck() {
+      const deckDiv = document.getElementById('deckList');
+      deckDiv.innerHTML = '';
+
+      deck.forEach((card, index) => {
+        const div = document.createElement('div');
+        div.className = 'card';
+        div.innerHTML = `
+          <img src="/frame-image/${card.image?.id || 'default.jpg'}" alt="${card.name}">
+          <p><strong>${card.name}</strong></p>
+          <button onclick='removeFromDeck(${index})'>Remove</button>
+        `;
+        deckDiv.appendChild(div);
+      });
+    }
+
+    function submitDeck() {
+      const deckData = deck.map(card => card.id);
+      fetch('/api/decks/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ name: "My Deck", cards: deckData })
+      })
+      .then(response => {
+        if (response.ok) {
+          alert("Deck saved successfully!");
+        } else {
+          alert("Failed to save deck.");
+        }
+      });
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Yu-Gi-Oh! Decks</title>
+  <style>
+    body {
+      background-image: url(/img/bg.jpg);
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    h1 {
+      font-weight: bold;
+      color: red;
+      font-size: 55px;
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .container {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 20px;
+      gap: 30px;
+    }
+
+    .card-list {
+      background-color: rgba(255, 255, 255, 0.6);
+      padding: 20px;
+      border-radius: 12px;
+      width: 600px;
+      max-height: 500px;
+      overflow-y: auto;
+    }
+
+    .card-item {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 15px;
+      padding: 10px;
+      background-color: #f0f0f0;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+
+    .card-item:hover {
+      transform: scale(1.05);
+    }
+
+    .card-item img {
+      width: 80px;
+      height: auto;
+      border-radius: 4px;
+    }
+
+    .card-info {
+      flex-grow: 1;
+    }
+
+    .buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    button {
+      cursor: pointer;
+      width: 200px;
+      height: 60px;
+      background-color: #28a745;
+      border: none;
+      border-radius: 8px;
+      font-size: 1.2rem;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+.search-container {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin: 20px auto;
+  width: 600px;
+  height: 75px;
+}
+
+#searchBar {
+  flex: 1;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+}
+    button:hover {
+      background-color: #218838;
+      transform: scale(1.05);
+    }
+
+    img.logo {
+      display: block;
+      margin: 20px auto;
+      width: 300px;
+    }
+        /* New styles for search bar */
+    #searchBar {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+      box-sizing: border-box;
+    }
+  </style>
+</head>
+
+<body>
+  <img src="/img/yugioh.png" alt="Logo" class="logo">
+  <h1>Card Options!!!</h1>
+  <div class="search-container">
+    <input type="text" id="searchBar" placeholder="Search decks by name...">
+    </div>
+  <div class="container">
+	<!-- Card List -->
+	   <div class="card-list">
+	     <div th:each="card : ${cards}" class="card-item" onclick="selectCard(this)" th:data-cardid="${card.id}">
+	       <img th:src="@{'/frame-image/' + ${card.image.id}}" alt="Card image">
+	       <div class="card-info">
+	         <b th:text="${card.name}">Card Name</b><br>
+	         <span th:text="'ATK/' + ${card.attack} + ' DEF/' + ${card.defense}">ATK/DEF</span>
+			 <span th:text="'Description:' + ${card.description}">Description</span>
+	       </div>
+	     </div>
+	   </div>
+    <!-- Buttons on the right -->
+    <div class="buttons">
+<button onclick="updateSelected()">Update Selected</button>
+<button onclick="deleteSelected()">Delete Selected</button>
+<button onclick="goBack()">Back</button>
+    </div>
+  </div>
+
+  <script>
+	let selectedCardId = null;
+    function selectCard(el) {
+		document.querySelectorAll('.card-item').forEach(item => item.style.border = 'none');
+		el.style.border = '2px solid red';
+		selectedCardId = el.getAttribute('data-cardid');
+		console.log("Selected card id:", selectedCardId);
+    }
+	
+	function updateSelected() {
+	  if (!selectedCardId) {
+	    alert("Please select a card first.");
+	    return;
+	  }
+	  // Redirect to update page with selected card ID as param
+	 window.location.href = '/cardbuilder?id=' + selectedCardId;
+	}
+
+	function deleteSelected() {
+	  if (!selectedCardId) {
+	    alert("Please select a card first.");
+	    return;
+	  }
+	  // Confirm deletion
+	  if (confirm("Are you sure you want to delete this card?")) {
+	    // Call backend endpoint to delete the card (example: POST or GET)
+	    fetch('/deleteCard/' + selectedCardId, { method: 'POST' })
+		.then(response => {
+		  if (response.status === 204) {
+		    alert("Card deleted!");
+		    window.location.reload();
+		  } else {
+		    alert("Failed to delete card.");
+		  }
+		})
+	      .catch(() => alert("Error contacting server."));
+	  }
+	}
+
+	function goBack() {
+	  window.location.href = '/card';
+	}
+
+    // Search/filter functionality
+    const searchBar = document.getElementById('searchBar');
+    searchBar.addEventListener('input', () => {
+      const query = searchBar.value.toLowerCase();
+      const cards = document.querySelectorAll('.card-item');
+
+      cards.forEach(card => {
+        // Get card name and description text content
+        const name = card.querySelector('.card-info b').textContent.toLowerCase();
+        const description = card.querySelector('.card-info span:nth-of-type(2)').textContent.toLowerCase();
+
+        // Show card if name or description includes search query, else hide it
+        if (name.includes(query) || description.includes(query)) {
+          card.style.display = 'flex';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    });
+  </script>
+</body>
+</html>
