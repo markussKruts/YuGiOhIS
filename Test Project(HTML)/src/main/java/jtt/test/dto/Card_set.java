@@ -38,11 +38,14 @@ public Card_set(Card card_id,Set set_id,Rarities rarity_id) {
 	this.rarity_id = rarity_id;
 	this.set_id = set_id;
 }
-public int getCard_set_id() {
+public Card_set() {
+	// TODO Auto-generated constructor stub
+}
+public int getId() {
 	return card_set_id;
 }
 
-public void setCard_set_id(int card_set_id) {
+public void setId(int card_set_id) {
 	this.card_set_id = card_set_id;
 }
 

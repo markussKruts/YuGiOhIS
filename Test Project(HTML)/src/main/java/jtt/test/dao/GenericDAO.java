@@ -1,6 +1,9 @@
 package jtt.test.dao;
 
 import java.util.List;
+import java.util.Optional;
+
+import jtt.test.dto.Card;
 
 public interface GenericDAO<T>{
 	T insert(T value);

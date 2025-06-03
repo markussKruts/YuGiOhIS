@@ -63,22 +63,14 @@ public class SetDAOImpl implements SetDAO {
 
 	@Override
 	public Set getByName(String name) throws SQLException {
-		// TODO Auto-generated method stub
-		return null;
+		return setRepository.findByName(name);
 	}
 
 	@Override
 	public Set getByCode(String code) throws SQLException {
 		// TODO Auto-generated method stub
-		return null;
+		return setRepository.findByCode(code);
 	}
-
-	@Override
-	public Set getByReleaseDate(Date date) throws SQLException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 	
 
 }

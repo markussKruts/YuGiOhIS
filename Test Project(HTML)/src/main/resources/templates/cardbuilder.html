@@ -143,7 +143,7 @@
 <body>
 	<script th:inline="javascript">
 	  /*<![CDATA[*/
-	  const card = [[${cardJson}]];
+	  const set = [[${setJson}]];
 	  /*]]>*/
 	  </script>
 <script>
@@ -241,14 +241,14 @@ const params = new URLSearchParams(window.location.search);
 // Check if "cardId" (or whatever your param name is) exists
 if (params.has('id')) {
   // Change button text if cardId exists
-  button.textContent = 'Update card';
+  button.textContent = 'Update set';
 }
-	document.getElementById("card-image").addEventListener("change", () => {
+	document.getElementById("set-image").addEventListener("change", () => {
 	  document.getElementById("image_select").selectedIndex = 0;
 	});
 
 	document.getElementById("image_select").addEventListener("change", () => {
-	  document.getElementById("card-image").value = "";
+	  document.getElementById("set-image").value = "";
 	});
   const dropArea = document.getElementById('drop-area');
   const fileInput = document.getElementById('card-image');
@@ -336,7 +336,7 @@ if (params.has('id')) {
       data.forEach(item => {
         const option = document.createElement('option');
         option.value = item.id;
-        option.textContent = item.name || item.race || item.image_name || "Unknown";
+        option.textContent = item.name || item.image_name || "Unknown";
         select.appendChild(option);
       });
 

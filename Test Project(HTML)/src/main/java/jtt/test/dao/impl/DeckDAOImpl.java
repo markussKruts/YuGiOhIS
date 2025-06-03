@@ -28,7 +28,7 @@ public class DeckDAOImpl implements DeckDAO {
 		Decks deckData = repository.findById(id).get();
 		if(Objects.nonNull(value.getName()) && !value.getName().equals("")) {
 			deckData.setName(value.getName());
-			deckData.setUsers(value.getUsers());
+			deckData.setUser(value.getUser());
 			
 		}
 		return repository.save(deckData);

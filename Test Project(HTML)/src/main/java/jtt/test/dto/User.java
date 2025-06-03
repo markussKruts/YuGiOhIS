@@ -15,9 +15,6 @@ import jakarta.persistence.Table;
 @Table(name = "users")
 
 public class User implements Serializable{
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,6 +25,8 @@ public class User implements Serializable{
 	private String name;
 	@OneToMany(mappedBy = "user")
 	private List<Card> cards;
+	@OneToMany(mappedBy = "user")
+	private List<Decks> decks;
 	
 	public User(int user_id, String username, String email, String password, String name) {
 		this.user_id = user_id;

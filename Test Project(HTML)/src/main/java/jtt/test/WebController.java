@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -35,17 +37,23 @@ import jtt.test.dao.impl.ArchetypeDAOImpl;
 import jtt.test.dao.impl.AttributeDAOImpl;
 import jtt.test.dao.impl.CardDAOImpl;
 import jtt.test.dao.impl.Card_imageDAOImpl;
+import jtt.test.dao.impl.Card_setDAOImpl;
 import jtt.test.dao.impl.Card_typeDAOImpl;
 import jtt.test.dao.impl.Frame_typeDAOImpl;
 import jtt.test.dao.impl.RaceDAOImpl;
+import jtt.test.dao.impl.RaritiesDAOImpl;
+import jtt.test.dao.impl.SetDAOImpl;
 import jtt.test.dao.impl.UserDAOImpl;
 import jtt.test.dto.Archetype;
 import jtt.test.dto.Attribute;
 import jtt.test.dto.Card;
 import jtt.test.dto.Card_Type;
 import jtt.test.dto.Card_image;
+import jtt.test.dto.Card_set;
 import jtt.test.dto.FrameType;
 import jtt.test.dto.Race;
+import jtt.test.dto.Rarities;
+import jtt.test.dto.Set;
 import jtt.test.dto.User;
 import jtt.test.repositories.ArchetypeRepository;
 import jtt.test.repositories.AttributeRepository;
@@ -73,6 +81,12 @@ public class WebController {
 	Frame_typeDAOImpl ftypeService;
 	@Autowired
 	RaceDAOImpl raceService;
+	@Autowired
+	SetDAOImpl setService;
+	@Autowired
+	RaritiesDAOImpl rareService;
+	@Autowired
+	Card_setDAOImpl cardSetService;
 	
 	
     @Autowired
@@ -151,20 +165,12 @@ public class WebController {
 	model.addAttribute("message", "signup");
 	return "card";
     }
-    
-    
-    //card view image filler
-    @GetMapping("/frame-image/list")
-    @ResponseBody
-    public List<Map<String, Object>> listImageMetadata() {
-        return imgService.getAllData().stream().map(img -> {
-            Map<String, Object> map = new HashMap<>();
-            map.put("id", img.getId());
-            map.put("name", img.getName());
-            map.put("content_type", img.getContent_type());
-            return map;
-        }).toList();
+    @GetMapping("/set")
+	public String set(Model model) {
+	model.addAttribute("message", "signup");
+	return "set";
     }
+    
 
     @GetMapping("/ownCards")
     public String getCards(Model model, HttpSession session) throws SQLException {
@@ -203,7 +209,6 @@ public class WebController {
             return map;
         }).toList();
     }
-    
     // Return JSON list of image metadata
     @GetMapping("/arch/list")
     @ResponseBody
@@ -248,7 +253,18 @@ public class WebController {
             return map;
         }).toList();
     }
-    
+    //card view image filler
+    @GetMapping("/frame-image/list")
+    @ResponseBody
+    public List<Map<String, Object>> listImageMetadata() {
+        return imgService.getAllData().stream().map(img -> {
+            Map<String, Object> map = new HashMap<>();
+            map.put("id", img.getId());
+            map.put("name", img.getName());
+            map.put("content_type", img.getContent_type());
+            return map;
+        }).toList();
+    }
     // Return image binary data
     @GetMapping("/frame-image/{id}")
     @ResponseBody
@@ -260,7 +276,16 @@ public class WebController {
             .header(HttpHeaders.CONTENT_TYPE, img.getContent_type())
             .body(img.getImage());
     }
-    
+    @GetMapping("/card/list")
+    @ResponseBody
+    public List<Map<String, Object>> listCard() {
+        return cardService.getAllData().stream().map(typee -> {
+            Map<String, Object> map = new HashMap<>();
+            map.put("id", typee.getId());
+            map.put("name", typee.getName());
+            return map;
+        }).toList();
+    }
     // Return image binary data
     @PostMapping("/deleteCard/{id}")
     public ResponseEntity<Void> deletCard(@PathVariable int id) {
@@ -271,6 +296,33 @@ public class WebController {
         
         return ResponseEntity.noContent().build();
     }
+	@GetMapping("/setbuilder")
+	public String setBuild(Model model, @RequestParam(required = false) Integer id) {
+	    if (id != null) {
+	        Set set = setService.getByID(id);
+	        model.addAttribute("set", set);
+	        try {
+	            ObjectMapper objectMapper = new ObjectMapper();
+	            String setJson = objectMapper.writeValueAsString(set);
+	            model.addAttribute("setJson", setJson);
+	        } catch (Exception e) {
+	            model.addAttribute("setJson", "{}");
+	        }
+
+	    } else {
+	    	Set set = new Set();
+	        model.addAttribute("set", set);
+	        try {
+	            ObjectMapper objectMapper = new ObjectMapper();
+	            String setJson = objectMapper.writeValueAsString(set);
+	            model.addAttribute("setJson", setJson);
+	        } catch (Exception e) {
+	            model.addAttribute("setJson", "{}");
+	        }
+
+	    }
+	return "setbuilder";
+	}
 	@GetMapping("/cardbuilder")
 	public String build(Model model, @RequestParam(required = false) Integer id) {
 	    if (id != null) {
@@ -408,6 +460,74 @@ public class WebController {
 
 	    return "redirect:/card";
 	}
+	@PostMapping("/submit-set")
+	public String submitSet(
+	        @RequestParam("name") String name,
+	        @RequestParam("set_code") String setCode,
+	        @RequestParam(value = "card_id") List<Integer> cardIds,
+	        @RequestParam(value = "rarity_id") List<Integer> rarityIds,
+	        @RequestParam(value = "image-image", required = false) MultipartFile imageFile,
+	        @RequestParam(value = "image_select", required = false) Integer imageId,
+	        @RequestParam String image
+	) throws SQLException, IOException {
+
+	    // Create and set basic info
+	    Set set = new Set();
+	    set.setName(name);
+	    set.setCode(setCode);
+
+	    // Handle Card Image
+	    Card_image cardImage = imgService.getByName(image);
+	    if (cardImage == null && imageFile != null && !imageFile.isEmpty()) {
+	        cardImage = new Card_image();
+	        cardImage.setName(image);
+	        cardImage.setImage(imageFile.getBytes());
+	        cardImage.setContent_type(imageFile.getContentType());
+	        imgService.insert(cardImage);
+	    }
+	    set.setImage(cardImage);
+
+	    // Validate cardIds and rarityIds list size
+	    if (cardIds.size() != rarityIds.size()) {
+	        throw new IllegalArgumentException("Card and rarity lists must have the same length");
+	    }
+
+	    // Add card_set entries
+	    List<Card_set> cardSets = new ArrayList<>();
+	    for (int i = 0; i < cardIds.size(); i++) {
+	        int cardId = cardIds.get(i);
+	        int rarityId = rarityIds.get(i);
+
+	        try {
+	            Card card = cardService.getByID(cardId);
+	            System.out.println(card.getName());
+	            Rarities rarity = rareService.getByID(rarityId);
+	            System.out.println(rarity.getName());
+
+	            Card_set cardSet = new Card_set();
+	            cardSet.setCard_id(card);
+	            cardSet.setSet_id(set);
+	            cardSet.setRarity_id(rarity);
+
+	            cardSets.add(cardSet);
+	            
+	            cardSetService.insert(cardSet);
+	            System.err.println(cardSet.getCard_id());
+	        } catch (NoSuchElementException e) {
+	            throw new IllegalArgumentException("Invalid Card ID: " + cardId, e);
+	        }
+	    }
+
+
+	    // Save everything in one go
+	    setService.insert(set);
+	    
+	    
+
+	    return "redirect:/set";
+	}
+
+
 
 	@GetMapping("/proxy-image")
 	public ResponseEntity<byte[]> proxyImage(@RequestParam String url) throws IOException {

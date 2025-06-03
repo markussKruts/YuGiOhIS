@@ -2,7 +2,7 @@
 <html xmlns:th="https://www.thymeleaf.org">
 	<head>
 		<meta charset="UTF-8">
-		<title>Yu-Gi-Oh!</title>
+		<title>Yu-Gi-Oh! Cards</title>
 		<style>
 img {
   display: block;
@@ -31,14 +31,15 @@ h1 {
   text-align:center;
   color:red;
 }
-button{
-	cursor:pointer;
-	padding: 14px 100px;
-      background-color: #28a745;
-      border: none;
-      border-radius: 8px;
-      font-size: 1.2rem;
-      transition: background-color 0.3s ease, transform 0.2s ease;
+button {
+  cursor: pointer;
+  width: 250px;   
+  height: 60px;        
+  background-color: #28a745;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.2rem;
+  transition: background-color 0.3s ease, transform 0.2s ease;
 }
 button:hover {
       background-color: #218838;
@@ -52,15 +53,14 @@ b {
 	
 	<body>
 		<a><img src="/img/yugioh.png" alt="yyy" style="align-item:center;"></a>
-		<h1>Card, Deck And Set Builder!!!</h1>
+		<h1>Set Options!!!</h1>
 		<div class="tf">
-		<a href="/card" type="button"><button>Card Options</button></a>
-		<a href="/main" type="button"><button>Deck Options</button></a>
-		<a href="/set" type="button"><button>Set Options</button></a>
+		<a href="/setbuilder" type="button"><button>Create a set</button></a>
+		<a href="/ownSets" type="button"><button>View your sets</button></a>
+		<a href="/allSets" type="button"><button>View all sets</button></a>
 		</div>
 		<div class="tf">
-		<a href="/" type="button"><button>Log out</button></a>
+		<a href="/main" type="button"><button>Back</button></a>
 		</div>
-		
 	</body>
 </html>
