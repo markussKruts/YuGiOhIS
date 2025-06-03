@@ -58,14 +58,4 @@ public class DeckDAOImpl implements DeckDAO {
 		System.out.println("Service decks count: " + decks.size());
 		return decks;
 	}
-
-	@Override
-	public Decks getByName(String name) throws SQLException {
-		return repository.findByName(name);
-	}
-
-	@Override
-	public List<Decks> getByUser(User user) throws SQLException {
-		return repository.findByUser(user);
-	}
 }

@@ -143,21 +143,9 @@
 <body>
 	<script th:inline="javascript">
 	  /*<![CDATA[*/
-	  const set = [[${setJson}]];
+	  const card = [[${cardJson}]];
 	  /*]]>*/
 	  </script>
-<script>
-	function checkOption(obj) {
-    var input = document.getElementsByName("atk");
-    var input1 = document.getElementsByName("def");
-    var input2 = document.getElementsByName("lvl");
-    for(var i=0; i < input.length; i++) {
-     input[i].disabled = !(obj.value != "Spell Card") || !(obj.value != "Trap Card")
-     input1[i].disabled = !(obj.value != "Spell Card") || !(obj.value != "Trap Card")
-     input2[i].disabled = !(obj.value != "Spell Card") || !(obj.value != "Trap Card")
-    }
-}
-</script>
 	
   <img src="/img/yugioh.png" alt="Logo" class="logo">
  <h1>Card Builder</h1>
@@ -241,14 +229,14 @@ const params = new URLSearchParams(window.location.search);
 // Check if "cardId" (or whatever your param name is) exists
 if (params.has('id')) {
   // Change button text if cardId exists
-  button.textContent = 'Update set';
+  button.textContent = 'Update card';
 }
-	document.getElementById("set-image").addEventListener("change", () => {
+	document.getElementById("card-image").addEventListener("change", () => {
 	  document.getElementById("image_select").selectedIndex = 0;
 	});
 
 	document.getElementById("image_select").addEventListener("change", () => {
-	  document.getElementById("set-image").value = "";
+	  document.getElementById("card-image").value = "";
 	});
   const dropArea = document.getElementById('drop-area');
   const fileInput = document.getElementById('card-image');
@@ -336,7 +324,7 @@ if (params.has('id')) {
       data.forEach(item => {
         const option = document.createElement('option');
         option.value = item.id;
-        option.textContent = item.name || item.image_name || "Unknown";
+        option.textContent = item.name || item.race || item.image_name || "Unknown";
         select.appendChild(option);
       });
 

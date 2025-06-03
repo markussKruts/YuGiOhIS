@@ -12,9 +12,4 @@ import jtt.test.dto.Decks;
 import jtt.test.dto.User;
 
 public interface Deck_CardsRepository extends CrudRepository<Deck_Cards, Integer> {
-	@Query("SELECT u FROM Deck_Cards u WHERE u.name = :name")
-	Deck_Cards findByName(@Param("name") String name);
-	
-	@Query("SELECT v FROM Decks v WHERE v.card = :card")
-	List<Decks> findByUser(@Param("user") Card Card);
 }

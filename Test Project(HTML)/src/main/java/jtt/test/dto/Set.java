@@ -21,10 +21,12 @@ public class Set {
 	private int set_id;
 private String name;
 private String code;
-private Date release_date;
 @ManyToOne
 @JoinColumn(name = "image_id")
 private Card_image image;
+@ManyToOne
+@JoinColumn(name = "user_id")
+private User user;
 
 
 public Set() {}
@@ -33,7 +35,6 @@ public Set( String name, String code, Date release_date) {
 	
 	this.name = name;
 	this.code = code;
-	this.release_date = release_date;
 }
 
 public String getName() {
@@ -52,13 +53,6 @@ public void setCode(String code) {
 	this.code = code;
 }
 
-public Date getRelease_date() {
-	return release_date;
-}
-
-public void setRelease_date(Date release_date) {
-	this.release_date = release_date;
-}
 
 public int getId() {
 	return set_id;
@@ -74,6 +68,22 @@ public Card_image getImage() {
 
 public void setImage(Card_image image) {
 	this.image = image;
+}
+
+public User getUser() {
+	return user;
+}
+
+public void setUser(User user) {
+	this.user = user;
+}
+
+public int getSet_id() {
+	return set_id;
+}
+
+public void setSet_id(int set_id) {
+	this.set_id = set_id;
 }
 
 

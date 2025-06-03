@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 import jtt.test.dao.SetDAO;
 
 import jtt.test.dto.Set;
-
+import jtt.test.dto.User;
 import jtt.test.repositories.SetRepository;
 @Service
 public class SetDAOImpl implements SetDAO {
@@ -29,10 +29,9 @@ public class SetDAOImpl implements SetDAO {
 	@Override
 	public Set update(Set value, int id) {
 		Set setData = setRepository.findById(id).get();
-		if(Objects.nonNull(value.getName()) && !value.getName().equals("") && Objects.nonNull(value.getCode()) && !value.getCode().equals("") && Objects.nonNull(value.getRelease_date())) {
+		if(Objects.nonNull(value.getName()) && !value.getName().equals("") && Objects.nonNull(value.getCode()) && !value.getCode().equals("")) {
 			setData.setName(value.getName());
 			setData.setCode(value.getCode());
-			setData.setRelease_date(value.getRelease_date());
 		}
 		return setRepository.save(value);
 	}
@@ -70,6 +69,12 @@ public class SetDAOImpl implements SetDAO {
 	public Set getByCode(String code) throws SQLException {
 		// TODO Auto-generated method stub
 		return setRepository.findByCode(code);
+	}
+
+	@Override
+	public List<Set> getByUser(User user) throws SQLException {
+		// TODO Auto-generated method stub
+		return setRepository.findByUser(user);
 	}
 	
 

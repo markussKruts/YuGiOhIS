@@ -60,7 +60,7 @@ public class RaritiesDAOImpl implements RaritiesDAO {
 	@Override
 	public Rarities getByName(String name) throws SQLException {
 		// TODO Auto-generated method stub
-		return null;
+		return raritiesRepository.findByName(name);
 	}
 
 	

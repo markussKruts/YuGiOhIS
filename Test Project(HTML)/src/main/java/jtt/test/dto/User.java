@@ -27,6 +27,8 @@ public class User implements Serializable{
 	private List<Card> cards;
 	@OneToMany(mappedBy = "user")
 	private List<Decks> decks;
+	@OneToMany(mappedBy = "user")
+	private List<Set> set;
 	
 	public User(int user_id, String username, String email, String password, String name) {
 		this.user_id = user_id;

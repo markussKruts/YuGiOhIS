@@ -2,6 +2,7 @@ package jtt.test;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -28,6 +29,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.servlet.http.HttpSession;
@@ -133,6 +135,7 @@ public class WebController {
     session.setAttribute("loggedInUser", user);
  	return "redirect:/main";
     }
+    
     @PostMapping("/login")
  	public String login(@RequestParam String username, @RequestParam String password, Model model, HttpSession session) {
     	
@@ -142,13 +145,14 @@ public class WebController {
     			session.setAttribute("loggedInUser", user);
     			return "redirect:/main";
     		}else {
-    			model.addAttribute("error", "Invalid password.");
+    			model.addAttribute("error", "Incorrect password.");
     		}
     	}else {
     		model.addAttribute("error", "Username not found.");
     	}
- 	return "redirect:/index";
+ 	return "index";
     }
+    
 	@GetMapping("/")
 	public String greeting(Model model, HttpSession session) {
 	model.addAttribute("message", "hello world");
@@ -183,6 +187,18 @@ public class WebController {
         model.addAttribute("cards", cards);
         
         return "ownCards";
+    }
+    @GetMapping("/ownSets")
+    public String getSets(Model model, HttpSession session) throws SQLException {
+    	User user = (User) session.getAttribute("loggedInUser");
+        List<Set> sets = setService.getByUser(user);
+        System.out.println("Sets found: " + sets.size()); // Debug
+        for (Set c : sets) {
+            System.out.println("Set: " + c.getName());
+        }
+        model.addAttribute("sets", sets);
+        
+        return "ownSets";
     }
     @GetMapping("/allCards")
     public String getAllCards(Model model, HttpSession session) throws SQLException {
@@ -286,6 +302,7 @@ public class WebController {
             return map;
         }).toList();
     }
+
     // Return image binary data
     @PostMapping("/deleteCard/{id}")
     public ResponseEntity<Void> deletCard(@PathVariable int id) {
@@ -321,7 +338,7 @@ public class WebController {
 	        }
 
 	    }
-	return "setbuilder";
+	return "setBuilder";
 	}
 	@GetMapping("/cardbuilder")
 	public String build(Model model, @RequestParam(required = false) Integer id) {
@@ -464,45 +481,53 @@ public class WebController {
 	public String submitSet(
 	        @RequestParam("name") String name,
 	        @RequestParam("set_code") String setCode,
-	        @RequestParam(value = "card_id") List<Integer> cardIds,
-	        @RequestParam(value = "rarity_id") List<Integer> rarityIds,
+	        @RequestParam(value = "cards_data") String cardsDataJson,
 	        @RequestParam(value = "image-image", required = false) MultipartFile imageFile,
 	        @RequestParam(value = "image_select", required = false) Integer imageId,
-	        @RequestParam String image
+	        @RequestParam(value = "image", required = false) String imageName,
+	        HttpSession session
 	) throws SQLException, IOException {
 
 	    // Create and set basic info
 	    Set set = new Set();
 	    set.setName(name);
 	    set.setCode(setCode);
+	    User userr = (User) session.getAttribute("loggedInUser");
+	    if (userr == null) {
+	        return "redirect:/login";
+	    }
+	    // Handle image
+	    Card_image cardImage = null;
 
-	    // Handle Card Image
-	    Card_image cardImage = imgService.getByName(image);
-	    if (cardImage == null && imageFile != null && !imageFile.isEmpty()) {
+	    if (imageFile != null && !imageFile.isEmpty()) {
 	        cardImage = new Card_image();
-	        cardImage.setName(image);
+	        cardImage.setName(imageName);
 	        cardImage.setImage(imageFile.getBytes());
 	        cardImage.setContent_type(imageFile.getContentType());
 	        imgService.insert(cardImage);
+	    } else if (imageId != null) {
+	        cardImage = imgService.getByID(imageId);
+	    } else if (imageName != null && !imageName.isBlank()) {
+	        cardImage = imgService.getByName(imageName);
 	    }
+
 	    set.setImage(cardImage);
-
-	    // Validate cardIds and rarityIds list size
-	    if (cardIds.size() != rarityIds.size()) {
-	        throw new IllegalArgumentException("Card and rarity lists must have the same length");
-	    }
-
-	    // Add card_set entries
+	    // Handle User
+	    User user = service.getByID(userr.getUser_id());
+	    set.setUser(user);
+	    // Parse cardsDataJson
 	    List<Card_set> cardSets = new ArrayList<>();
-	    for (int i = 0; i < cardIds.size(); i++) {
-	        int cardId = cardIds.get(i);
-	        int rarityId = rarityIds.get(i);
+	    try {
+	        ObjectMapper objectMapper = new ObjectMapper();
+	        List<Map<String, String>> cardsData = objectMapper.readValue(cardsDataJson, new TypeReference<>() {
+	        });
 
-	        try {
+	        for (Map<String, String> entry : cardsData) {
+	            int cardId = Integer.parseInt(entry.get("id"));
+	            String rarityName = entry.get("rarity");
+
 	            Card card = cardService.getByID(cardId);
-	            System.out.println(card.getName());
-	            Rarities rarity = rareService.getByID(rarityId);
-	            System.out.println(rarity.getName());
+	            Rarities rarity = rareService.getByName(rarityName);
 
 	            Card_set cardSet = new Card_set();
 	            cardSet.setCard_id(card);
@@ -510,19 +535,16 @@ public class WebController {
 	            cardSet.setRarity_id(rarity);
 
 	            cardSets.add(cardSet);
-	            
-	            cardSetService.insert(cardSet);
-	            System.err.println(cardSet.getCard_id());
-	        } catch (NoSuchElementException e) {
-	            throw new IllegalArgumentException("Invalid Card ID: " + cardId, e);
 	        }
+	    } catch (Exception e) {
+	        throw new IllegalArgumentException("Invalid card data format", e);
 	    }
 
-
-	    // Save everything in one go
+	    // Save Set and CardSets
 	    setService.insert(set);
-	    
-	    
+	    for (Card_set cs : cardSets) {
+	        cardSetService.insert(cs);
+	    }
 
 	    return "redirect:/set";
 	}

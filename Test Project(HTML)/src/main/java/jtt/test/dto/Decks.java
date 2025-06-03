@@ -16,13 +16,16 @@ import jakarta.persistence.Table;
 public class Decks {
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-	  private int deck_id;
+	 private int deck_id;
 	private String name;
 	
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
-	
+    
+    @OneToMany(mappedBy = "deck")
+    private List<Deck_Cards> deckCards;
+    
 	public Decks() {}
 	
 	public Decks(String name) {

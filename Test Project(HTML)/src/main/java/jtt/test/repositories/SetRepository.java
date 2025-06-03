@@ -16,4 +16,7 @@ public interface SetRepository extends CrudRepository<Set, Integer>{
 	
 	@Query("SELECT t FROM Set t WHERE t.code = :code")
 	Set findByCode(@Param("code") String type);
+	
+	@Query("SELECT v FROM Set v WHERE v.user = :user")
+	List<Set> findByUser(@Param("user") User user);
 }
