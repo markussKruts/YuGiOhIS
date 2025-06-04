@@ -124,7 +124,7 @@
     <input type="text" id="searchBar" placeholder="Search cards by name or description...">
     </div>
   <div class="container">
-	<!-- Card List -->
+	
 	   <div class="card-list">
 	     <div th:each="card : ${cards}" class="card-item" onclick="selectCard(this)" th:data-cardid="${card.id}">
 	       <img th:src="@{'/frame-image/' + ${card.image.id}}" alt="Card image">
@@ -135,7 +135,6 @@
 	       </div>
 	     </div>
 	   </div>
-    <!-- Buttons on the right -->
     <div class="buttons">
 <button onclick="updateSelected()">Update Selected</button>
 <button onclick="deleteSelected()">Delete Selected</button>
@@ -157,7 +156,7 @@
 	    alert("Please select a card first.");
 	    return;
 	  }
-	  // Redirect to update page with selected card ID as param
+
 	 window.location.href = '/cardbuilder?id=' + selectedCardId;
 	}
 
@@ -166,9 +165,8 @@
 	    alert("Please select a card first.");
 	    return;
 	  }
-	  // Confirm deletion
 	  if (confirm("Are you sure you want to delete this card?")) {
-	    // Call backend endpoint to delete the card (example: POST or GET)
+
 	    fetch('/deleteCard/' + selectedCardId, { method: 'POST' })
 		.then(response => {
 		  if (response.status === 204) {

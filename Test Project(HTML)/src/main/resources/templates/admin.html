@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org">
+	<head>
+		<meta charset="UTF-8">
+		<title>Yu-Gi-Oh!</title>
+		<style>
+img {
+  display: block;
+  margin: auto;
+  width: 50%;
+}
+body {
+	background-image: url(/img/bg.jpg);
+}
+.tf{
+	gap: 30px;
+	width: 850px;
+	height: 180px;
+	align-items: center;
+	display: flex;
+	top: 10;
+	bottom: 0;
+	left: 50;
+	right: 50;
+	margin: auto;
+}
+h1 {
+  font-weight: bold;
+  color: #fff;
+  font-size: 55px;
+  text-align:center;
+  color:red;
+}
+button{
+	cursor:pointer;
+	padding: 14px 100px;
+      background-color: #28a745;
+      border: none;
+      border-radius: 8px;
+      font-size: 1.2rem;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+}
+button:hover {
+      background-color: #218838;
+      transform: scale(1.05);
+}
+b {
+  font-size: 22px;
+}
+			</style>
+	</head>
+	
+	<body>
+		<a><img src="/img/yugioh.png" alt="yyy" style="align-item:center;"></a>
+		<h1>Card, Deck And Set Builder!!!</h1>
+		<div class="tf">
+		<a href="/card" type="button"><button>Card Options</button></a>
+		<a href="/main" type="button"><button>Deck Options</button></a>
+		<a href="/set" type="button"><button>Set Options</button></a>
+		</div>
+		<div class="tf">
+		<a href="/" type="button"><button>Log out</button></a>
+		</div>
+		
+	</body>
+</html>

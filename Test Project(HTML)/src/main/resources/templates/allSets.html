@@ -105,7 +105,6 @@
       width: 300px;
     }
 
-    /* New styles for search bar */
     #searchBar {
       width: 100%;
       padding: 10px;
@@ -133,6 +132,7 @@
   <input type="hidden" name="race" />
   <input type="hidden" name="ftype" />
   <input type="hidden" name="image" />
+  <input type="hidden" name="setCode" />
 </form>
   <div class="search-container">
     <input type="text" id="searchBar" placeholder="Search cards by name or description...">
@@ -150,9 +150,9 @@
       </div>
     </div>
 
-    <!-- Buttons on the right -->
+
     <div class="buttons">
-      <button onclick="showSetsCard()">Show sets for selected</button>
+      <button onclick="showSets()">Show sets for selected</button>
       <button onclick="goBack()">Back</button>
     </div>
   </div>
@@ -167,57 +167,72 @@ function selectCard(el, cardData) {
   console.log("Selected card id:", selectedCardId);
 }
 
-async function saveCard() {
+async function showSets() {
   if (!selectedCardData) {
     alert("Please select a card first.");
     return;
   }
 
-  try {
-const proxyUrl = '/proxy-image?url=' + encodeURIComponent(selectedCardData.card_images[0].image_url);
-const response = await fetch(proxyUrl);
-const blob = await response.blob();
-
-    // Create a FormData object
-    const formData = new FormData();
-    formData.append("name", selectedCardData.name || "Unknown");
-    formData.append("desc", selectedCardData.desc || "No description");
-    formData.append("atk", selectedCardData.atk || 0);
-    formData.append("def", selectedCardData.def || 0);
-    formData.append("lvl", selectedCardData.level || 0);
-    formData.append("arch", selectedCardData.archetype?.name || "Generic");
-    formData.append("type", selectedCardData.type || "Monster");
-    formData.append("attr", selectedCardData.attribute || "DARK");
-    formData.append("race", selectedCardData.race || "Spellcaster");
-    formData.append("ftype", "Effect"); // you can infer this if needed
-    formData.append("image", selectedCardData.name + ".jpg");
-  
-
-    // Convert image URL to blob & append as MultipartFile
-    const file = new File([blob], selectedCardData.name + ".jpg", {
-      type: blob.type,
-    });
-    formData.append("card-image", file);
-
-    // Submit to Spring backend
-    const result = await fetch("/submit-card", {
-      method: "POST",
-      body: formData,
-    });
-
-    if (result.ok) {
-      alert("Card saved successfully!");
-    } else {
-      throw new Error("Failed to save card.");
-    }
-  } catch (err) {
-    console.error(err);
-    alert("Error saving card: " + err.message);
+  const cardSets = selectedCardData.card_sets;
+  if (!cardSets || cardSets.length === 0) {
+    alert("No set information available for this card.");
+    return;
   }
+
+  const modal = document.createElement('div');
+  modal.style.position = 'fixed';
+  modal.style.top = '0';
+  modal.style.left = '0';
+  modal.style.width = '100vw';
+  modal.style.height = '100vh';
+  modal.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+  modal.style.display = 'flex';
+  modal.style.flexDirection = 'column';
+  modal.style.alignItems = 'center';
+  modal.style.justifyContent = 'center';
+  modal.style.zIndex = '9999';
+
+  const box = document.createElement('div');
+  box.style.backgroundColor = 'white';
+  box.style.padding = '30px';
+  box.style.borderRadius = '12px';
+  box.style.maxWidth = '500px';
+  box.style.maxHeight = '70vh';
+  box.style.overflowY = 'auto';
+  box.style.textAlign = 'center';
+
+  const title = document.createElement('h2');
+  title.innerText = `Select a Set for ${selectedCardData.name}`;
+  box.appendChild(title);
+
+  cardSets.forEach(set => {
+    const btn = document.createElement('button');
+    btn.innerText = `${set.set_name} (${set.set_code})`;
+    btn.style.display = 'block';
+    btn.style.margin = '10px auto';
+    btn.style.padding = '10px 20px';
+    btn.style.fontSize = '1rem';
+    btn.style.cursor = 'pointer';
+    btn.onclick = () => {
+      window.location.href = `/set-info/${encodeURIComponent(set.set_code)}`;
+    };
+    box.appendChild(btn);
+  });
+
+  const cancelBtn = document.createElement('button');
+  cancelBtn.innerText = 'Cancel';
+  cancelBtn.style.marginTop = '20px';
+  cancelBtn.style.backgroundColor = '#ccc';
+  cancelBtn.onclick = () => document.body.removeChild(modal);
+  box.appendChild(cancelBtn);
+
+  modal.appendChild(box);
+  document.body.appendChild(modal);
 }
 
+
     function goBack() {
-      window.location.href = '/card';
+      window.location.href = '/set';
     }
 
 const searchBar = document.getElementById('searchBar');
@@ -231,7 +246,6 @@ searchBtn.addEventListener('click', () => {
 });
 
 async function fetchCards(name) {
-  // Clear previous cards
   cardList.innerHTML = '';
 
   try {
@@ -246,7 +260,7 @@ async function fetchCards(name) {
       return;
     }
 
-    const maxCards = 20; // Limit to 20 cards
+    const maxCards = 20;
     const limitedCards = data.data.slice(0, maxCards);
 
     limitedCards.forEach(card => {
@@ -283,7 +297,6 @@ async function fetchCards(name) {
       cardList.appendChild(cardItem);
     });
 
-    // Optional: show a note if results were limited
     if (data.data.length > maxCards) {
       const note = document.createElement('p');
       note.textContent = `Showing first ${maxCards} results out of ${data.data.length}. Please refine your search.`;

@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -25,7 +24,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.RestTemplate;
@@ -57,11 +55,11 @@ import jtt.test.dto.Card_Type;
 import jtt.test.dto.Card_image;
 import jtt.test.dto.Card_set;
 import jtt.test.dto.Deck;
-import jtt.test.dto.Deck_Cards;
 import jtt.test.dto.FrameType;
 import jtt.test.dto.Race;
 import jtt.test.dto.Rarities;
 import jtt.test.dto.Set;
+import jtt.test.dto.SetForApi;
 import jtt.test.dto.User;
 import jtt.test.repositories.ArchetypeRepository;
 import jtt.test.repositories.AttributeRepository;
@@ -95,11 +93,10 @@ public class WebController {
 	RaritiesDAOImpl rareService;
 	@Autowired
 	Card_setDAOImpl cardSetService;
+
 	@Autowired
 	DeckDAOImpl deckService;
 	
-	@Autowired
-	Deck_CardsDAOImpl deckCardService;
 	
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -132,7 +129,7 @@ public class WebController {
     }
     @PostMapping("/submit")
  	public String signup(@RequestParam String username, @RequestParam String email, @RequestParam String name, @RequestParam String password, Model model, HttpSession session) {
-    	if(service.getByUsername(username) != null) {
+    	if(service.getByUsername(username) != null || username.equals("admin")) {
     		model.addAttribute("error", "username is taken");
     		return "redirect:/signup";
     }
@@ -148,7 +145,15 @@ public class WebController {
     
     @PostMapping("/login")
  	public String login(@RequestParam String username, @RequestParam String password, Model model, HttpSession session) {
-    	
+    	if(username.equals("admin")) {
+    		User user = service.getByUsername(username);
+    		if(passwordEncoder.matches(password, user.getPassword())) {
+    			session.setAttribute("admin", user);
+    			return "redirect:/main";
+    		}else {
+    			model.addAttribute("error", "Incorrect password.");
+    		}
+    	}else {
     	if(service.getByUsername(username) != null) {
     		User user = service.getByUsername(username);
     		if(passwordEncoder.matches(password, user.getPassword())) {
@@ -160,6 +165,7 @@ public class WebController {
     	}else {
     		model.addAttribute("error", "Username not found.");
     	}
+    	}
  	return "index";
     }
     
@@ -167,6 +173,14 @@ public class WebController {
 	public String greeting(Model model, HttpSession session) {
 	model.addAttribute("message", "hello world");
 	session.invalidate();
+	if(service.getByUsername("admin") == null) {
+    User user = new User();
+    user.setName("admin");
+    user.setUsername("admin");
+    user.setPassword(passwordEncoder.encode("admin"));
+    user.setEmail("admin");
+    service.insert(user);
+	}
 	return "index";
 	}
     @GetMapping("/main")
@@ -184,11 +198,7 @@ public class WebController {
 	model.addAttribute("message", "signup");
 	return "set";
     }
-    @GetMapping("/deck")
-   	public String deck(Model model) {
-   	model.addAttribute("message", "signup");
-   	return "deck";
-       }
+    
 
     @GetMapping("/ownCards")
     public String getCards(Model model, HttpSession session) throws SQLException {
@@ -214,21 +224,6 @@ public class WebController {
         
         return "ownSets";
     }
-    
-    @GetMapping("/ownDecks")
-    public String getDecks(Model model, HttpSession session) throws SQLException {
-    	User user = (User) session.getAttribute("loggedInUser");
-        List<Deck> decks = deckService.getByUser(user);
-        System.out.println("Decks found: " + decks.size()); // Debug
-        for (Deck c : decks) {
-            System.out.println("Deck: " + c.getName());
-        }
-        model.addAttribute("decks", decks);
-        
-        return "ownDecks";
-    }
-    
-    
     @GetMapping("/allCards")
     public String getAllCards(Model model, HttpSession session) throws SQLException {
     	User user = (User) session.getAttribute("loggedInUser");
@@ -338,6 +333,37 @@ public class WebController {
             return map;
         }).toList();
     }
+    @GetMapping("/set-info/{setCode}")
+    public String setInfo(@PathVariable String setCode, Model model, HttpSession session) {
+        User user = (User) session.getAttribute("loggedInUser");
+        model.addAttribute("user", user);
+
+        if (setCode == null || setCode.isEmpty()) {
+            model.addAttribute("error", "Set code is missing.");
+            return "error";
+        }
+        String baseSetCode = setCode.split("-")[0];  // e.g. "RP01" from "RP01-EN001"
+        String setImageUrl = "https://images.ygoprodeck.com/images/sets/" + baseSetCode + ".jpg";
+        model.addAttribute("setImageUrl", setImageUrl);
+        try {
+            RestTemplate restTemplate = new RestTemplate();
+            String url = "https://db.ygoprodeck.com/api/v7/cardsetsinfo.php?setcode=" + setCode;
+
+            ResponseEntity<SetForApi> response = restTemplate.getForEntity(url, SetForApi.class);
+
+            if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
+                model.addAttribute("set", response.getBody());
+                
+                return "cardSet";
+            } else {
+                model.addAttribute("error", "Could not retrieve set data.");
+                return "error";
+            }
+        } catch (Exception e) {
+            model.addAttribute("error", "Error fetching set info: " + e.getMessage());
+            return "error";
+        }
+    }
 
     @PostMapping("/deleteCard/{id}")
     public ResponseEntity<Void> deletCard(@PathVariable int id) {
@@ -387,38 +413,6 @@ public class WebController {
 	    }
 	return "setBuilder";
 	}
-	
-	
-	@GetMapping("/customdeck")
-	public String deckbuild(Model model, @RequestParam(required = false) Integer id) {
-	    if (id != null) {
-	        Deck deck = deckService.getByID(id);
-	        model.addAttribute("card", deck);
-	        try {
-	            ObjectMapper objectMapper = new ObjectMapper();
-	            String cardJson = objectMapper.writeValueAsString(deck);
-	            model.addAttribute("cardJson", cardJson);
-	        } catch (Exception e) {
-	            model.addAttribute("cardJson", "{}");
-	        }
-
-	    } else {
-	    	Deck deck = new Deck();
-	        model.addAttribute("deck", deck);
-	        try {
-	            ObjectMapper objectMapper = new ObjectMapper();
-	            String cardJson = objectMapper.writeValueAsString(deck);
-	            model.addAttribute("deckJson", cardJson);
-	        } catch (Exception e) {
-	            model.addAttribute("deckJson", "{}");
-	        }
-
-	    }
-	return "customdeck";
-	}
-	
-	
-	
 	@GetMapping("/cardbuilder")
 	public String build(Model model, @RequestParam(required = false) Integer id) {
 	    if (id != null) {
@@ -536,18 +530,6 @@ public class WebController {
 	        imgService.insert(cardImage);
 	    }
 	    card.setImage(cardImage);
-	    
-	    System.out.println("Name: " + name);
-	    System.out.println("ATK: " + atk);
-	    System.out.println("DEF: " + def);
-	    System.out.println("Level: " + lvl);
-	    System.out.println("Archetype: " + arch);
-	    System.out.println("Type: " + type);
-	    System.out.println("Attr: " + attr);
-	    System.out.println("Race: " + race);
-	    System.out.println("Ftype: " + ftype);
-	    System.out.println("Image: " + image);
-	    System.out.println("Image file: " + (imageFile != null ? imageFile.getOriginalFilename() : "null"));
 	    if (id != null && id != 0) {
 	        cardService.update(card, id);
 	    } else {
@@ -646,52 +628,7 @@ public class WebController {
 	    
 	    return "redirect:/set";
 	}
-	@PostMapping("/create")
-    public ResponseEntity<String> createDeck(@RequestBody Map<String, Object> payload, HttpSession session) {
-        User user = (User) session.getAttribute("loggedInUser");
-        if (user == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You must be logged in to save a deck.");
-        }
 
-        String name = (String) payload.get("name");
-        if (name == null || name.isBlank()) {
-            return ResponseEntity.badRequest().body("Deck name is required.");
-        }
-
-        List<Integer> cardIds;
-        try {
-            cardIds = ((List<?>) payload.get("cards")).stream()
-                .map(Object::toString)
-                .map(Integer::valueOf)
-                .collect(Collectors.toList());
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Invalid card list.");
-        }
-
-        try {
-            // Save deck
-            Deck deck = new Deck();
-            deck.setName(name);
-            deck.setUser(user);
-            deckService.insert(deck);  // Should auto-set ID if JPA is correct
-
-            // Save each card in deck
-            for (Integer cardId : cardIds) {
-                Card card = cardService.getByID(cardId);
-                if (card != null) {
-                    Deck_Cards deckCard = new Deck_Cards();
-                    deckCard.setDeck(deck);
-                    deckCard.setCard(card);
-                    deckCardService.insert(deckCard);
-                }
-            }
-
-            return ResponseEntity.ok("Deck saved successfully.");
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to save deck.");
-        }
-    }
 
 
 	@GetMapping("/proxy-image")
@@ -702,5 +639,52 @@ public class WebController {
 	    headers.setContentType(MediaType.IMAGE_JPEG); // or dynamic based on content-type
 	    return new ResponseEntity<>(response.getBody(), headers, HttpStatus.OK);
 	}
-}
 
+
+	@GetMapping("/customdeck")
+	public String deckbuild(Model model, @RequestParam(required = false) Integer id) {
+	    if (id != null) {
+	        Deck deck = deckService.getByID(id);
+	        model.addAttribute("card", deck);
+	        try {
+	            ObjectMapper objectMapper = new ObjectMapper();
+	            String cardJson = objectMapper.writeValueAsString(deck);
+	            model.addAttribute("cardJson", cardJson);
+	        } catch (Exception e) {
+	            model.addAttribute("cardJson", "{}");
+	        }
+
+	    } else {
+	    	Deck deck = new Deck();
+	        model.addAttribute("deck", deck);
+	        try {
+	            ObjectMapper objectMapper = new ObjectMapper();
+	            String cardJson = objectMapper.writeValueAsString(deck);
+	            model.addAttribute("deckJson", cardJson);
+	        } catch (Exception e) {
+	            model.addAttribute("deckJson", "{}");
+	        }
+
+	    }
+	return "customdeck";
+	}
+	    
+    @GetMapping("/ownDecks")
+    public String getDecks(Model model, HttpSession session) throws SQLException {
+    	User user = (User) session.getAttribute("loggedInUser");
+        List<Deck> decks = deckService.getByUser(user);
+        System.out.println("Decks found: " + decks.size()); // Debug
+        for (Deck c : decks) {
+            System.out.println("Deck: " + c.getName());
+        }
+        model.addAttribute("decks", decks);
+        
+        return "ownDecks";
+    }
+    
+        @GetMapping("/deck")
+   	public String deck(Model model) {
+   	model.addAttribute("message", "signup");
+   	return "deck";
+       }
+}
