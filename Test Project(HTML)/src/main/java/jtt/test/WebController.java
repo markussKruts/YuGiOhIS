@@ -173,14 +173,6 @@ public class WebController {
 	public String greeting(Model model, HttpSession session) {
 	model.addAttribute("message", "hello world");
 	session.invalidate();
-	if(service.getByUsername("admin") == null) {
-    User user = new User();
-    user.setName("admin");
-    user.setUsername("admin");
-    user.setPassword(passwordEncoder.encode("admin"));
-    user.setEmail("admin");
-    service.insert(user);
-	}
 	return "index";
 	}
     @GetMapping("/main")
@@ -682,7 +674,7 @@ public class WebController {
         return "ownDecks";
     }
     
-        @GetMapping("/deck")
+    @GetMapping("/deck")
    	public String deck(Model model) {
    	model.addAttribute("message", "signup");
    	return "deck";
