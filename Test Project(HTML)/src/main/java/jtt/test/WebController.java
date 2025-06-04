@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.RestTemplate;
@@ -41,6 +43,8 @@ import jtt.test.dao.impl.CardDAOImpl;
 import jtt.test.dao.impl.Card_imageDAOImpl;
 import jtt.test.dao.impl.Card_setDAOImpl;
 import jtt.test.dao.impl.Card_typeDAOImpl;
+import jtt.test.dao.impl.DeckDAOImpl;
+import jtt.test.dao.impl.Deck_CardsDAOImpl;
 import jtt.test.dao.impl.Frame_typeDAOImpl;
 import jtt.test.dao.impl.RaceDAOImpl;
 import jtt.test.dao.impl.RaritiesDAOImpl;
@@ -52,6 +56,8 @@ import jtt.test.dto.Card;
 import jtt.test.dto.Card_Type;
 import jtt.test.dto.Card_image;
 import jtt.test.dto.Card_set;
+import jtt.test.dto.Deck;
+import jtt.test.dto.Deck_Cards;
 import jtt.test.dto.FrameType;
 import jtt.test.dto.Race;
 import jtt.test.dto.Rarities;
@@ -89,7 +95,11 @@ public class WebController {
 	RaritiesDAOImpl rareService;
 	@Autowired
 	Card_setDAOImpl cardSetService;
+	@Autowired
+	DeckDAOImpl deckService;
 	
+	@Autowired
+	Deck_CardsDAOImpl deckCardService;
 	
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -174,7 +184,11 @@ public class WebController {
 	model.addAttribute("message", "signup");
 	return "set";
     }
-    
+    @GetMapping("/deck")
+   	public String deck(Model model) {
+   	model.addAttribute("message", "signup");
+   	return "deck";
+       }
 
     @GetMapping("/ownCards")
     public String getCards(Model model, HttpSession session) throws SQLException {
@@ -200,6 +214,21 @@ public class WebController {
         
         return "ownSets";
     }
+    
+    @GetMapping("/ownDecks")
+    public String getDecks(Model model, HttpSession session) throws SQLException {
+    	User user = (User) session.getAttribute("loggedInUser");
+        List<Deck> decks = deckService.getByUser(user);
+        System.out.println("Decks found: " + decks.size()); // Debug
+        for (Deck c : decks) {
+            System.out.println("Deck: " + c.getName());
+        }
+        model.addAttribute("decks", decks);
+        
+        return "ownDecks";
+    }
+    
+    
     @GetMapping("/allCards")
     public String getAllCards(Model model, HttpSession session) throws SQLException {
     	User user = (User) session.getAttribute("loggedInUser");
@@ -358,6 +387,38 @@ public class WebController {
 	    }
 	return "setBuilder";
 	}
+	
+	
+	@GetMapping("/customdeck")
+	public String deckbuild(Model model, @RequestParam(required = false) Integer id) {
+	    if (id != null) {
+	        Deck deck = deckService.getByID(id);
+	        model.addAttribute("card", deck);
+	        try {
+	            ObjectMapper objectMapper = new ObjectMapper();
+	            String cardJson = objectMapper.writeValueAsString(deck);
+	            model.addAttribute("cardJson", cardJson);
+	        } catch (Exception e) {
+	            model.addAttribute("cardJson", "{}");
+	        }
+
+	    } else {
+	    	Deck deck = new Deck();
+	        model.addAttribute("deck", deck);
+	        try {
+	            ObjectMapper objectMapper = new ObjectMapper();
+	            String cardJson = objectMapper.writeValueAsString(deck);
+	            model.addAttribute("deckJson", cardJson);
+	        } catch (Exception e) {
+	            model.addAttribute("deckJson", "{}");
+	        }
+
+	    }
+	return "customdeck";
+	}
+	
+	
+	
 	@GetMapping("/cardbuilder")
 	public String build(Model model, @RequestParam(required = false) Integer id) {
 	    if (id != null) {
@@ -585,7 +646,52 @@ public class WebController {
 	    
 	    return "redirect:/set";
 	}
+	@PostMapping("/create")
+    public ResponseEntity<String> createDeck(@RequestBody Map<String, Object> payload, HttpSession session) {
+        User user = (User) session.getAttribute("loggedInUser");
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You must be logged in to save a deck.");
+        }
 
+        String name = (String) payload.get("name");
+        if (name == null || name.isBlank()) {
+            return ResponseEntity.badRequest().body("Deck name is required.");
+        }
+
+        List<Integer> cardIds;
+        try {
+            cardIds = ((List<?>) payload.get("cards")).stream()
+                .map(Object::toString)
+                .map(Integer::valueOf)
+                .collect(Collectors.toList());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Invalid card list.");
+        }
+
+        try {
+            // Save deck
+            Deck deck = new Deck();
+            deck.setName(name);
+            deck.setUser(user);
+            deckService.insert(deck);  // Should auto-set ID if JPA is correct
+
+            // Save each card in deck
+            for (Integer cardId : cardIds) {
+                Card card = cardService.getByID(cardId);
+                if (card != null) {
+                    Deck_Cards deckCard = new Deck_Cards();
+                    deckCard.setDeck(deck);
+                    deckCard.setCard(card);
+                    deckCardService.insert(deckCard);
+                }
+            }
+
+            return ResponseEntity.ok("Deck saved successfully.");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to save deck.");
+        }
+    }
 
 
 	@GetMapping("/proxy-image")

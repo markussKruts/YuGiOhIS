@@ -27,7 +27,7 @@
       gap: 30px;
     }
 
-    .card-list {
+    .deck-list {
       background-color: rgba(255, 255, 255, 0.6);
       padding: 20px;
       border-radius: 12px;
@@ -36,7 +36,7 @@
       overflow-y: auto;
     }
 
-    .card-item {
+    .deck-item {
       display: flex;
       align-items: center;
       gap: 15px;
@@ -48,17 +48,17 @@
       transition: background-color 0.3s ease, transform 0.2s ease;
     }
 
-    .card-item:hover {
+    .deck-item:hover {
       transform: scale(1.05);
     }
 
-    .card-item img {
+    .deck-item img {
       width: 80px;
       height: auto;
       border-radius: 4px;
     }
 
-    .card-info {
+    .deck-info {
       flex-grow: 1;
     }
 
@@ -78,25 +78,28 @@
       font-size: 1.2rem;
       transition: background-color 0.3s ease, transform 0.2s ease;
     }
-.search-container {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  margin: 20px auto;
-  width: 600px;
-  height: 75px;
-}
 
-#searchBar {
-  flex: 1;
-  padding: 10px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  font-size: 1rem;
-}
     button:hover {
       background-color: #218838;
       transform: scale(1.05);
+    }
+
+    .search-container {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin: 20px auto;
+      width: 600px;
+      height: 75px;
+    }
+
+    #searchBar {
+      flex: 1;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+      box-sizing: border-box;
     }
 
     img.logo {
@@ -104,104 +107,99 @@
       margin: 20px auto;
       width: 300px;
     }
-        /* New styles for search bar */
-    #searchBar {
-      width: 100%;
-      padding: 10px;
-      margin-bottom: 15px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      font-size: 1rem;
-      box-sizing: border-box;
-    }
   </style>
 </head>
 
 <body>
   <img src="/img/yugioh.png" alt="Logo" class="logo">
-  <h1>Card Options!!!</h1>
+  <h1>Deck Options!!!</h1>
+
   <div class="search-container">
     <input type="text" id="searchBar" placeholder="Search decks by name...">
-    </div>
+  </div>
+
   <div class="container">
-	<!-- Card List -->
-	   <div class="card-list">
-	     <div th:each="card : ${cards}" class="card-item" onclick="selectCard(this)" th:data-cardid="${card.id}">
-	       <img th:src="@{'/frame-image/' + ${card.image.id}}" alt="Card image">
-	       <div class="card-info">
-	         <b th:text="${card.name}">Card Name</b><br>
-	         <span th:text="'ATK/' + ${card.attack} + ' DEF/' + ${card.defense}">ATK/DEF</span>
-			 <span th:text="'Description:' + ${card.description}">Description</span>
-	       </div>
-	     </div>
-	   </div>
-    <!-- Buttons on the right -->
+    <!-- Deck List -->
+    <div class="deck-list">
+      <div th:each="deck : ${decks}" class="deck-item" onclick="selectDeck(this)" th:data-deckid="${deck.id}">
+        <img th:src="@{'/frame-image/' + ${deck.image.id}}" alt="Deck image">
+        <div class="deck-info">
+          <b th:text="${deck.name}">Deck Name</b><br>
+          <span th:text="'Cards: ' + ${deck.cardCount}">Cards: 40</span><br>
+          <span th:text="'Description: ' + ${deck.description}">Deck Description</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Buttons -->
     <div class="buttons">
-<button onclick="updateSelected()">Update Selected</button>
-<button onclick="deleteSelected()">Delete Selected</button>
-<button onclick="goBack()">Back</button>
+      <button onclick="createNewDeck()">Create New Deck</button>
+      <button onclick="updateSelected()">Update Selected</button>
+      <button onclick="deleteSelected()">Delete Selected</button>
+      <button onclick="goBack()">Back</button>
     </div>
   </div>
 
   <script>
-	let selectedCardId = null;
-    function selectCard(el) {
-		document.querySelectorAll('.card-item').forEach(item => item.style.border = 'none');
-		el.style.border = '2px solid red';
-		selectedCardId = el.getAttribute('data-cardid');
-		console.log("Selected card id:", selectedCardId);
+    let selectedDeckId = null;
+
+    function selectDeck(el) {
+      document.querySelectorAll('.deck-item').forEach(item => item.style.border = 'none');
+      el.style.border = '2px solid red';
+      selectedDeckId = el.getAttribute('data-deckid');
+      console.log("Selected deck id:", selectedDeckId);
     }
-	
-	function updateSelected() {
-	  if (!selectedCardId) {
-	    alert("Please select a card first.");
-	    return;
-	  }
-	  // Redirect to update page with selected card ID as param
-	 window.location.href = '/cardbuilder?id=' + selectedCardId;
-	}
 
-	function deleteSelected() {
-	  if (!selectedCardId) {
-	    alert("Please select a card first.");
-	    return;
-	  }
-	  // Confirm deletion
-	  if (confirm("Are you sure you want to delete this card?")) {
-	    // Call backend endpoint to delete the card (example: POST or GET)
-	    fetch('/deleteCard/' + selectedCardId, { method: 'POST' })
-		.then(response => {
-		  if (response.status === 204) {
-		    alert("Card deleted!");
-		    window.location.reload();
-		  } else {
-		    alert("Failed to delete card.");
-		  }
-		})
-	      .catch(() => alert("Error contacting server."));
-	  }
-	}
+    function createNewDeck() {
+      window.location.href = '/customdeck';
+    }
 
-	function goBack() {
-	  window.location.href = '/card';
-	}
+    function updateSelected() {
+      if (!selectedDeckId) {
+        alert("Please select a deck first.");
+        return;
+      }
+      window.location.href = '/customdeck?id=' + selectedDeckId;
+    }
 
-    // Search/filter functionality
+    function deleteSelected() {
+      if (!selectedDeckId) {
+        alert("Please select a deck first.");
+        return;
+      }
+
+      if (confirm("Are you sure you want to delete this deck?")) {
+        fetch('/deleteDeck/' + selectedDeckId, { method: 'POST' })
+          .then(response => {
+            if (response.status === 204) {
+              alert("Deck deleted!");
+              window.location.reload();
+            } else {
+              alert("Failed to delete deck.");
+            }
+          })
+          .catch(() => alert("Error contacting server."));
+      }
+    }
+
+    function goBack() {
+      window.location.href = '/deck';
+    }
+
+    // Search filter
     const searchBar = document.getElementById('searchBar');
     searchBar.addEventListener('input', () => {
       const query = searchBar.value.toLowerCase();
-      const cards = document.querySelectorAll('.card-item');
+      const decks = document.querySelectorAll('.deck-item');
 
-      cards.forEach(card => {
-        // Get card name and description text content
-        const name = card.querySelector('.card-info b').textContent.toLowerCase();
-        const description = card.querySelector('.card-info span:nth-of-type(2)').textContent.toLowerCase();
+      decks.forEach(deck => {
+        const name = deck.querySelector('.deck-info b').textContent.toLowerCase();
+        const description = deck.querySelector('.deck-info span:nth-of-type(2)').textContent.toLowerCase();
 
-        // Show card if name or description includes search query, else hide it
         if (name.includes(query) || description.includes(query)) {
-          card.style.display = 'flex';
+          deck.style.display = 'flex';
         } else {
-          card.style.display = 'none';
+          deck.style.display = 'none';
         }
       });
     });

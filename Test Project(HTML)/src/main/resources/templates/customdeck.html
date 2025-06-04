@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Yu-Gi-Oh! Custom Deck Builder</title>
   <style>
     body {
@@ -72,8 +72,8 @@
       border: none;
       margin-right: 10px;
     }
-    
-     #searchBar {
+
+    #searchBar {
       width: 100%;
       padding: 10px;
       margin-bottom: 15px;
@@ -82,15 +82,23 @@
       font-size: 1rem;
       box-sizing: border-box;
     }
-    
+
+    .deck-count {
+      margin-top: 10px;
+      font-size: 1.2rem;
+      color: #00ff88;
+    }
+
+    .error {
+      color: #ff4444;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
   <h1>Custom Deck Builder</h1>
 
   <div class="deck-builder">
-
-    <!-- Search section -->
     <div class="search-area">
       <h2>Search Cards</h2>
       <input type="text" id="searchInput" placeholder="Enter card name..." />
@@ -98,45 +106,79 @@
       <div class="card-list" id="searchResults"></div>
     </div>
 
-    <!-- Deck area -->
     <div class="deck-area">
       <h2>Your Deck (max 60 cards)</h2>
+      <div class="deck-count" id="deckCount">Total Cards: 0</div>
       <div class="deck-list" id="deckList"></div>
-      <button onclick="submitDeck()">Save Deck</button>
+      
+      <input type="text" id="deckNameInput" placeholder="Enter deck name..." />
+      <button onclick="saveDeck()" style="margin-top: 15px;">Save Deck</button>
     </div>
+  </div>
+
+  <div style="text-align: center; margin-bottom: 20px;">
+    <button onclick="window.location.href='/deck'" style="background: #28a745;">⬅ Back to Main</button>
   </div>
 
   <script>
     let deck = [];
+    const cardMap = new Map();
 
     async function searchCards() {
-      const query = document.getElementById('searchInput').value;
-      if (!query) return;
-
-      // Sample fetch from your own created card API or from YGOPRODeck
-      const res = await fetch(`/api/cards/search?name=${query}`);
-      const cards = await res.json();
-
+      const query = document.getElementById('searchInput').value.trim();
       const resultsDiv = document.getElementById('searchResults');
       resultsDiv.innerHTML = '';
 
-      cards.forEach(card => {
-        const div = document.createElement('div');
-        div.className = 'card';
-        div.innerHTML = `
-          <img src="/frame-image/${card.image?.id || 'default.jpg'}" alt="${card.name}">
-          <p><strong>${card.name}</strong></p>
-          <button onclick='addToDeck(${JSON.stringify(card)})'>Add to Deck</button>
-        `;
-        resultsDiv.appendChild(div);
-      });
+      if (!query) return;
+
+      try {
+        const res = await fetch(`https://db.ygoprodeck.com/api/v7/cardinfo.php?fname=${encodeURIComponent(query)}`);
+        const data = await res.json();
+
+        if (!data.data || data.data.length === 0) {
+          resultsDiv.innerHTML = "<p class='error'>No cards found.</p>";
+          return;
+        }
+
+        data.data.forEach(card => {
+          const cardData = {
+            id: card.id,
+            name: card.name,
+            imageUrl: card.card_images[0]?.image_url
+          };
+
+          cardMap.set(cardData.id, cardData);
+
+          const div = document.createElement('div');
+          div.className = 'card';
+          div.innerHTML = `
+            <img src="${cardData.imageUrl}" alt="${cardData.name}">
+            <p><strong>${cardData.name}</strong></p>
+            <button onclick='addToDeck(${cardData.id})'>Add to Deck</button>
+          `;
+          resultsDiv.appendChild(div);
+        });
+      } catch (err) {
+        alert("Error fetching cards.");
+        console.error(err);
+      }
     }
 
-    function addToDeck(card) {
+    function addToDeck(cardId) {
+      const card = cardMap.get(cardId);
+      if (!card) return;
+
       if (deck.length >= 60) {
         alert("Maximum of 60 cards per deck.");
         return;
       }
+
+      const count = deck.filter(c => c.id === card.id).length;
+      if (count >= 3) {
+        alert("You can only have up to 3 copies of a card.");
+        return;
+      }
+
       deck.push(card);
       renderDeck();
     }
@@ -148,36 +190,63 @@
 
     function renderDeck() {
       const deckDiv = document.getElementById('deckList');
+      const countDiv = document.getElementById('deckCount');
       deckDiv.innerHTML = '';
 
       deck.forEach((card, index) => {
         const div = document.createElement('div');
         div.className = 'card';
         div.innerHTML = `
-          <img src="/frame-image/${card.image?.id || 'default.jpg'}" alt="${card.name}">
+          <img src="${card.imageUrl}" alt="${card.name}">
           <p><strong>${card.name}</strong></p>
           <button onclick='removeFromDeck(${index})'>Remove</button>
         `;
         deckDiv.appendChild(div);
       });
+
+      countDiv.textContent = `Total Cards: ${deck.length}`;
     }
 
-    function submitDeck() {
+    function saveDeck() {
+      const deckName = document.getElementById("deckNameInput").value.trim();
+      if (!deckName) {
+        alert("Please enter a deck name.");
+        return;
+      }
+
+      if (deck.length === 0) {
+        alert("Your deck is empty!");
+        return;
+      }
+
       const deckData = deck.map(card => card.id);
+
+      const payload = {
+        name: deckName,
+        cards: deckData
+      };
+
       fetch('/api/decks/create', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ name: "My Deck", cards: deckData })
+        body: JSON.stringify(payload)
       })
-      .then(response => {
-        if (response.ok) {
-          alert("Deck saved successfully!");
-        } else {
-          alert("Failed to save deck.");
-        }
-      });
+        .then(response => {
+          if (response.ok) {
+            alert("Deck saved successfully!");
+            deck = [];
+            document.getElementById("deckNameInput").value = '';
+            renderDeck();
+          } else {
+            response.text().then(text => alert("Failed to save deck: " + text));
+          }
+        })
+        .catch(err => {
+          alert("Error saving deck.");
+          console.error(err);
+        });
     }
   </script>
 </body>

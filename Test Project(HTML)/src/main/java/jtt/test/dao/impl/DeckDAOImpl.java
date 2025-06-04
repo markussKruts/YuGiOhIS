@@ -9,7 +9,8 @@ import org.springframework.stereotype.Service;
 
 import jtt.test.dao.DeckDAO;
 
-import jtt.test.dto.Decks;
+import jtt.test.dto.Deck;
+import jtt.test.dto.Set;
 import jtt.test.dto.User;
 import jtt.test.repositories.DeckRepository;
 
@@ -19,13 +20,13 @@ public class DeckDAOImpl implements DeckDAO {
 	DeckRepository repository;
 
 	@Override
-	public Decks insert(Decks value) {
+	public Deck insert(Deck value) {
 		return repository.save(value);
 	}
 
 	@Override
-	public Decks update(Decks value, int id) {
-		Decks deckData = repository.findById(id).get();
+	public Deck update(Deck value, int id) {
+		Deck deckData = repository.findById(id).get();
 		if(Objects.nonNull(value.getName()) && !value.getName().equals("")) {
 			deckData.setName(value.getName());
 			deckData.setUser(value.getUser());
@@ -41,21 +42,29 @@ public class DeckDAOImpl implements DeckDAO {
 	}
 
 	@Override
-	public Decks getByID(int id) {
-		Decks DeckData = repository.findById(id).get();
+	public Deck getByID(int id) {
+		Deck DeckData = repository.findById(id).get();
 		return DeckData;
 	}
 
 	@Override
-	public int getID(Decks value) {
+	public int getID(Deck value) {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
-	public List<Decks> getAllData() {
-		List<Decks> decks = (List<Decks>) repository.findAll();
+	public List<Deck> getAllData() {
+		List<Deck> decks = (List<Deck>) repository.findAll();
 		System.out.println("Service decks count: " + decks.size());
 		return decks;
 	}
+
+	@Override
+	public List<Deck> getByUser(User user) throws SQLException {
+		// TODO Auto-generated method stub
+		return repository.findByUser(user);
+	}
+
+
 }

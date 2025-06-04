@@ -26,7 +26,7 @@ public class User implements Serializable{
 	@OneToMany(mappedBy = "user")
 	private List<Card> cards;
 	@OneToMany(mappedBy = "user")
-	private List<Decks> decks;
+	private List<Deck> decks;
 	@OneToMany(mappedBy = "user")
 	private List<Set> set;
 	

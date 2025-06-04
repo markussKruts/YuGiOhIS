@@ -1,66 +1,63 @@
 <!DOCTYPE html>
 <html xmlns:th="https://www.thymeleaf.org">
-	<head>
-		<meta charset="UTF-8">
-		<title>Yu-Gi-Oh! Decks</title>
-		<style>
-img {
-  display: block;
-  margin: auto;
-  width: 50%;
-}
-body {
-	background-image: url(/img/bg.jpg);
-}
-.tf{
-	gap: 30px;
-	width: 850px;
-	height: 180px;
-	align-items: center;
-	display: flex;
-	top: 10;
-	bottom: 0;
-	left: 50;
-	right: 50;
-	margin: auto;
-}
-h1 {
-  font-weight: bold;
-  color: #fff;
-  font-size: 55px;
-  text-align:center;
-  color:red;
-}
-button {
-  cursor: pointer;
-  width: 250px;   
-  height: 60px;        
-  background-color: #28a745;
-  border: none;
-  border-radius: 8px;
-  font-size: 1.2rem;
-  transition: background-color 0.3s ease, transform 0.2s ease;
-}
-button:hover {
-      background-color: #218838;
-      transform: scale(1.05);
-}
-b {
-  font-size: 22px;
-}
-			</style>
-	</head>
+<head>
+	<meta charset="UTF-8">
+	<title>Yu-Gi-Oh! Decks</title>
+	<style>
+		img {
+			display: block;
+			margin: auto;
+			width: 50%;
+		}
+		body {
+			background-image: url(/img/bg.jpg);
+		}
+		.tf {
+			gap: 30px;
+			width: 850px;
+			height: 180px;
+			align-items: center;
+			display: flex;
+			margin: auto;
+		}
+		h1 {
+			font-weight: bold;
+			color: red;
+			font-size: 55px;
+			text-align: center;
+		}
+		button {
+			cursor: pointer;
+			width: 250px;
+			height: 60px;
+			background-color: #28a745;
+			border: none;
+			border-radius: 8px;
+			font-size: 1.2rem;
+			transition: background-color 0.3s ease, transform 0.2s ease;
+		}
+		button:hover {
+			background-color: #218838;
+			transform: scale(1.05);
+		}
+		b {
+			font-size: 22px;
+		}
+	</style>
+</head>
+
+<body>
+	<a><img src="/img/yugioh.png" alt="yyy" style="align-items:center;"></a>
+	<h1>Deck Options!!!</h1>
 	
-	<body>
-		<a><img src="/img/yugioh.png" alt="yyy" style="align-item:center;"></a>
-		<h1>Deck Options!!!</h1>
-		<div class="tf">
-		<a href="/customdeck" type="button"><button>Create</button></a>
-		<a href="/ownDecks" type="button"><button>View your decks</button></a>
-		<a href="/allDecks" type="button"><button>View all decks</button></a>
-		</div>
-		<div class="tf">
-		<a href="/main" type="button"><button>Back</button></a>
-		</div>
-	</body>
+	<div class="tf">
+		<a href="/customdeck"><button>Create</button></a>
+		<a href="/ownDecks"><button>View your decks</button></a>
+
+	</div>
+	
+	<div class="tf">
+		<a href="/main"><button>Back</button></a>
+	</div>
+</body>
 </html>

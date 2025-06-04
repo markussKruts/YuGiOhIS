@@ -19,7 +19,7 @@ public class Deck_Cards {
     // This defines the Many-to-One relationship with Decks
     @ManyToOne
     @JoinColumn(name = "deck_id") // This specifies the foreign key column in the deck_cards table that refers to the Decks table's primary key
-    private Decks deck; // Changed variable name from 'decks' to 'deck' to reflect a single ManyToOne relationship
+    private Deck deck; // Changed variable name from 'decks' to 'deck' to reflect a single ManyToOne relationship
 
     // This defines the Many-to-One relationship with Card
     @ManyToOne
@@ -29,21 +29,22 @@ public class Deck_Cards {
     public Deck_Cards() {}
 
     // Getters and Setters for deck
-    public Decks getDeck() {
+    public Deck getDeck() {
         return deck;
     }
 
-    public void setDeck(Decks deck) {
+    public void setDeck(Deck deck) {
         this.deck = deck;
     }
 
     // Getters and Setters for card
-    public Card getCard() {
-        return card;
+    @SuppressWarnings("unchecked")
+	public List<Card> getCard() {
+        return (List<Card>) card;
     }
 
-    public void setCard(Card card) {
-        this.card = card;
+    public void setCard(Card card2) {
+        this.card = (Card) card2;
     }
 
     public int getCard_deck_id() {

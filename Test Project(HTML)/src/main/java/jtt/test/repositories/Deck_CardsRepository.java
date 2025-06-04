@@ -8,7 +8,7 @@ import org.springframework.data.repository.query.Param;
 
 import jtt.test.dto.Card;
 import jtt.test.dto.Deck_Cards;
-import jtt.test.dto.Decks;
+import jtt.test.dto.Deck;
 import jtt.test.dto.User;
 
 public interface Deck_CardsRepository extends CrudRepository<Deck_Cards, Integer> {

@@ -13,7 +13,7 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "decks")
-public class Decks {
+public class Deck {
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
 	 private int deck_id;
@@ -26,9 +26,9 @@ public class Decks {
     @OneToMany(mappedBy = "deck")
     private List<Deck_Cards> deckCards;
     
-	public Decks() {}
+	public Deck() {}
 	
-	public Decks(String name) {
+	public Deck(String name) {
 		this.name = name;
 	}
 
